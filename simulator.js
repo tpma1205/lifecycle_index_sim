@@ -97,9 +97,6 @@ function simulate(
   let retireValPoint = 0;
   let deathAgePoint = null;
 
-  // 槓桿摩擦成本 (1.2%)
-  const levCost = 0.012;
-
   // 計算退休時的初始調整提領額 (將現值通膨調整至退休那一年)
   let adjustedWithdraw =
     withdrawAmount * Math.pow(1 + annualInflation, retireAge - currentAge);
@@ -130,10 +127,9 @@ function simulate(
       lev = lev60plus;
     }
 
-    // --- 步驟 2: 計算有效報酬率 (扣除槓桿成本) ---
-    // 公式: 有效報酬 = 槓桿倍數 * 市場報酬 - (槓桿倍數 - 1) * 借貸成本
-    // 若 lev=1, 則 (lev-1) 為 0, 無借貸成本
-    const effRet = lev * annualReturn - (lev - 1) * levCost;
+    // --- 步驟 2: 計算有效報酬率 ---
+    // 公式: 有效報酬 = 槓桿倍數 * 市場報酬
+    const effRet = lev * annualReturn;
 
     // --- 步驟 3: 根據是否退休執行資金進出 ---
     if (age < retireAge) {
