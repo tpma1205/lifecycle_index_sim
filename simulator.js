@@ -170,6 +170,10 @@ function simulate(
     }
   }
 
+  // 計算總投入成本（工作年數 × 每月投入 × 12 個月 / 10000 轉為萬元）
+  const totalInvestmentYears = retireAge - currentAge;
+  const totalInvestmentCost = (monthlyInv * 12 * totalInvestmentYears) / 10000;
+
   return {
     ages: ages,
     netWorths: netWorths,
@@ -179,6 +183,7 @@ function simulate(
     deathAgePoint: deathAgePoint,
     currentAge: currentAge,
     retireAge: retireAge,
+    totalInvestmentCost: totalInvestmentCost,
   };
 }
 
@@ -194,9 +199,13 @@ function displayResults(results) {
     ? `${results.deathAgePoint} 歲（可支撐 ${results.deathAgePoint - results.retireAge} 年）`
     : "資產足以支撐至 100 歲以上";
 
+  let totalInvestmentText = `${results.totalInvestmentCost.toFixed(2)} 萬元`;
+
   document.getElementById("targetResult").textContent = targetText;
   document.getElementById("retireResult").textContent = retireText;
   document.getElementById("deathResult").textContent = deathText;
+  document.getElementById("totalInvestmentResult").textContent =
+    totalInvestmentText;
 
   // 繪製圖表
   drawChart(results);
