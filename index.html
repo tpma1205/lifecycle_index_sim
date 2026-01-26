@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="zh-TW">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>生命週期投資配合生命週期模擬器</title>
+    <link rel="stylesheet" href="styles.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <h1>📊 指數投資配合生命週期模擬器</h1>
+        <p>計算您的理財目標達成年齡與退休資金規劃</p>
+      </header>
+
+      <main>
+        <section class="input-section">
+          <h2>📝 基本資料設定</h2>
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="currentAge">當前年齡</label>
+              <input
+                type="number"
+                id="currentAge"
+                placeholder="例：30"
+                value="30"
+                min="20"
+                max="80"
+              />
+            </div>
+            <div class="form-group">
+              <label for="currentNW">當前淨資產（萬元）</label>
+              <input
+                type="number"
+                id="currentNW"
+                placeholder="例：100"
+                value="100"
+                min="0"
+              />
+            </div>
+            <div class="form-group">
+              <label for="monthlyInv">每月投入金額（元）</label>
+              <input
+                type="number"
+                id="monthlyInv"
+                placeholder="例：20000"
+                value="20000"
+                min="0"
+              />
+            </div>
+            <div class="form-group">
+              <label for="annualReturn">預期年化報酬率（%）</label>
+              <input
+                type="number"
+                id="annualReturn"
+                placeholder="例：8"
+                value="8"
+                min="0"
+                max="20"
+                step="0.5"
+              />
+            </div>
+            <div class="form-group">
+              <label for="annualInflation">平均年通膨率（%）</label>
+              <input
+                type="number"
+                id="annualInflation"
+                placeholder="例：3"
+                value="3"
+                min="0"
+                max="10"
+                step="0.5"
+              />
+            </div>
+            <div class="form-group">
+              <label for="targetNW">目標淨資產（萬元）</label>
+              <input
+                type="number"
+                id="targetNW"
+                placeholder="例：1000"
+                value="1000"
+                min="0"
+              />
+            </div>
+            <div class="form-group">
+              <label for="retireAge">預計退休年齡</label>
+              <input
+                type="number"
+                id="retireAge"
+                placeholder="例：65"
+                value="65"
+                min="0"
+                max="100"
+              />
+            </div>
+            <div class="form-group">
+              <label for="withdrawAmount">退休後每年提領金額（萬元）</label>
+              <input
+                type="number"
+                id="withdrawAmount"
+                placeholder="例：50"
+                value="50"
+                min="0"
+              />
+            </div>
+          </div>
+
+          <h2>🎯 槓桿倍數設定（不同年齡階段）</h2>
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="lev2030">20～30 歲槓桿倍數</label>
+              <input
+                type="number"
+                id="lev2030"
+                placeholder="例：1"
+                value="1"
+                min="1"
+                max="3"
+                step="0.5"
+              />
+            </div>
+            <div class="form-group">
+              <label for="lev3040">30～40 歲槓桿倍數</label>
+              <input
+                type="number"
+                id="lev3040"
+                placeholder="例：1"
+                value="1"
+                min="1"
+                max="3"
+                step="0.5"
+              />
+            </div>
+            <div class="form-group">
+              <label for="lev4050">40～50 歲槓桿倍數</label>
+              <input
+                type="number"
+                id="lev4050"
+                placeholder="例：1"
+                value="1"
+                min="1"
+                max="3"
+                step="0.5"
+              />
+            </div>
+            <div class="form-group">
+              <label for="lev5060">50～60 歲槓桿倍數</label>
+              <input
+                type="number"
+                id="lev5060"
+                placeholder="例：1"
+                value="1"
+                min="1"
+                max="3"
+                step="0.5"
+              />
+            </div>
+            <div class="form-group">
+              <label for="lev60plus">60 歲以上槓桿倍數</label>
+              <input
+                type="number"
+                id="lev60plus"
+                placeholder="例：1"
+                value="1"
+                min="1"
+                max="3"
+                step="0.5"
+              />
+            </div>
+          </div>
+
+          <button class="btn-simulate" onclick="runSimulation()">
+            🚀 開始模擬
+          </button>
+        </section>
+
+        <section
+          class="results-section"
+          id="resultsSection"
+          style="display: none"
+        >
+          <h2>📊 模擬結果</h2>
+          <div class="results-grid">
+            <div class="result-card">
+              <h3>🎯 目標達成</h3>
+              <p id="targetResult">計算中...</p>
+            </div>
+            <div class="result-card">
+              <h3>🏠 退休時資產</h3>
+              <p id="retireResult">計算中...</p>
+            </div>
+            <div class="result-card">
+              <h3>💰 資金耗盡</h3>
+              <p id="deathResult">計算中...</p>
+            </div>
+          </div>
+
+          <div class="chart-container">
+            <canvas id="myChart"></canvas>
+          </div>
+        </section>
+      </main>
+
+      <footer>
+        <p>💡 本工具僅供參考，實際投資結果可能因市場波動而異。</p>
+      </footer>
+    </div>
+
+    <script src="simulator.js"></script>
+  </body>
+</html>
