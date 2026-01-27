@@ -15,11 +15,18 @@ function runSimulation() {
     document.getElementById("withdrawAmount").value,
   );
 
-  const lev2030 = parseFloat(document.getElementById("lev2030").value);
-  const lev3040 = parseFloat(document.getElementById("lev3040").value);
-  const lev4050 = parseFloat(document.getElementById("lev4050").value);
-  const lev5060 = parseFloat(document.getElementById("lev5060").value);
-  const lev60plus = parseFloat(document.getElementById("lev60plus").value);
+  const leverageSettings = {
+    lev2025: parseFloat(document.getElementById("lev2025").value),
+    lev2530: parseFloat(document.getElementById("lev2530").value),
+    lev3035: parseFloat(document.getElementById("lev3035").value),
+    lev3540: parseFloat(document.getElementById("lev3540").value),
+    lev4045: parseFloat(document.getElementById("lev4045").value),
+    lev4550: parseFloat(document.getElementById("lev4550").value),
+    lev5055: parseFloat(document.getElementById("lev5055").value),
+    lev5560: parseFloat(document.getElementById("lev5560").value),
+    lev6065: parseFloat(document.getElementById("lev6065").value),
+    lev65plus: parseFloat(document.getElementById("lev65plus").value),
+  };
 
   // 驗證輸入
   if (!validateInputs(currentAge, currentNW, targetNW, retireAge)) {
@@ -36,11 +43,7 @@ function runSimulation() {
     targetNW,
     retireAge,
     withdrawAmount,
-    lev2030,
-    lev3040,
-    lev4050,
-    lev5060,
-    lev60plus,
+    leverageSettings,
   );
 
   // 顯示結果
@@ -82,11 +85,7 @@ function simulate(
   targetNW,
   retireAge,
   withdrawAmount,
-  lev2030,
-  lev3040,
-  lev4050,
-  lev5060,
-  lev60plus,
+  leverageSettings,
 ) {
   const ages = [];
   const netWorths = [];
@@ -114,17 +113,26 @@ function simulate(
 
     // --- 步驟 1: 確定當年度適用的槓桿倍數 ---
     let lev;
-    if (age < 30) {
-      lev = lev2030;
+    if (age < 25) {
+      lev = leverageSettings.lev2025;
+    } else if (age < 30) {
+      lev = leverageSettings.lev2530;
+    } else if (age < 35) {
+      lev = leverageSettings.lev3035;
     } else if (age < 40) {
-      lev = lev3040;
+      lev = leverageSettings.lev3540;
+    } else if (age < 45) {
+      lev = leverageSettings.lev4045;
     } else if (age < 50) {
-      lev = lev4050;
+      lev = leverageSettings.lev4550;
+    } else if (age < 55) {
+      lev = leverageSettings.lev5055;
     } else if (age < 60) {
-      lev = lev5060;
+      lev = leverageSettings.lev5560;
+    } else if (age < 65) {
+      lev = leverageSettings.lev6065;
     } else {
-      // 60歲以上 (包含退休後)
-      lev = lev60plus;
+      lev = leverageSettings.lev65plus;
     }
 
     // --- 步驟 2: 計算有效報酬率 ---
@@ -397,3 +405,144 @@ function drawChart(results) {
     ],
   });
 }
+
+function autoSetLeverage() {
+  const currentAge = parseInt(document.getElementById("currentAge").value);
+  const currentNW = parseFloat(document.getElementById("currentNW").value);
+  const monthlyInv = parseFloat(document.getElementById("monthlyInv").value);
+  const annualReturn =
+    parseFloat(document.getElementById("annualReturn").value) / 100;
+  const annualInflation =
+    parseFloat(document.getElementById("annualInflation").value) / 100;
+  const retireAge = parseInt(document.getElementById("retireAge").value);
+
+  if (
+    isNaN(currentAge) ||
+    isNaN(currentNW) ||
+    isNaN(monthlyInv) ||
+    isNaN(annualReturn) ||
+    isNaN(annualInflation) ||
+    isNaN(retireAge)
+  ) {
+    alert("請先填寫正確的基本資料");
+    return;
+  }
+
+  let simAge = currentAge;
+  let netAsset = currentNW;
+  const annualSavings = (monthlyInv * 12) / 10000;
+
+  const buckets = {
+    lev2025: [],
+    lev2530: [],
+    lev3035: [],
+    lev3540: [],
+    lev4045: [],
+    lev4550: [],
+    lev5055: [],
+    lev5560: [],
+    lev6065: [],
+    lev65plus: [],
+  };
+
+  while (simAge <= retireAge) {
+    let humanCapital = 0;
+    const remainingYears = retireAge - simAge;
+    if (remainingYears > 0) {
+      for (let t = 1; t <= remainingYears; t++) {
+        humanCapital += annualSavings / Math.pow(1 + annualInflation, t);
+      }
+    }
+
+    let leverage = 2.0;
+    if (netAsset > 0) {
+      const totalWealth = netAsset + humanCapital;
+      leverage = Math.max(1.0, Math.min(2.0, totalWealth / netAsset));
+    }
+
+    if (simAge < 25) buckets.lev2025.push(leverage);
+    else if (simAge < 30) buckets.lev2530.push(leverage);
+    else if (simAge < 35) buckets.lev3035.push(leverage);
+    else if (simAge < 40) buckets.lev3540.push(leverage);
+    else if (simAge < 45) buckets.lev4045.push(leverage);
+    else if (simAge < 50) buckets.lev4550.push(leverage);
+    else if (simAge < 55) buckets.lev5055.push(leverage);
+    else if (simAge < 60) buckets.lev5560.push(leverage);
+    else if (simAge < 65) buckets.lev6065.push(leverage);
+    else buckets.lev65plus.push(leverage);
+
+    const exposure = netAsset * leverage;
+    netAsset =
+      netAsset +
+      exposure * annualReturn -
+      (exposure - netAsset) * annualInflation +
+      annualSavings;
+    simAge++;
+  }
+
+  for (const [id, values] of Object.entries(buckets)) {
+    const avg =
+      values.length > 0
+        ? values.reduce((a, b) => a + b, 0) / values.length
+        : 1.0;
+    document.getElementById(id).value = avg.toFixed(2);
+  }
+  updateLeverageInputsState();
+}
+
+function resetLeverage() {
+  [
+    "lev2025",
+    "lev2530",
+    "lev3035",
+    "lev3540",
+    "lev4045",
+    "lev4550",
+    "lev5055",
+    "lev5560",
+    "lev6065",
+    "lev65plus",
+  ].forEach((id) => {
+    document.getElementById(id).value = "1";
+  });
+  updateLeverageInputsState();
+}
+
+function updateLeverageInputsState() {
+  const currentAge = parseInt(document.getElementById("currentAge").value) || 0;
+
+  const ranges = [
+    { id: "lev2025", end: 25 },
+    { id: "lev2530", end: 30 },
+    { id: "lev3035", end: 35 },
+    { id: "lev3540", end: 40 },
+    { id: "lev4045", end: 45 },
+    { id: "lev4550", end: 50 },
+    { id: "lev5055", end: 55 },
+    { id: "lev5560", end: 60 },
+    { id: "lev6065", end: 65 },
+    { id: "lev65plus", end: 999 },
+  ];
+
+  ranges.forEach((range) => {
+    const el = document.getElementById(range.id);
+    if (!el) return;
+
+    if (currentAge >= range.end) {
+      el.type = "text"; // 改為文字型態以顯示 "--"
+      el.value = "--";
+      el.disabled = true;
+      el.style.backgroundColor = "#e9ecef"; // 灰底
+    } else {
+      el.disabled = false;
+      el.style.backgroundColor = "";
+      if (el.value === "--") {
+        el.value = "1"; // 若原本是被鎖定的，解鎖時恢復預設值
+      }
+      el.type = "number"; // 恢復為數字輸入
+    }
+  });
+}
+
+// 初始化執行一次，確保載入時狀態正確
+updateLeverageInputsState();
