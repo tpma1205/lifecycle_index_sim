@@ -154,9 +154,10 @@ h2 {
 }
 
 .result-card p {
-  font-size: 1.5em;
+  font-size: 1.8em;
   font-weight: bold;
-  color: #333;
+  color: #2d3748;
+  margin-top: 5px;
 }
 
 .chart-container {
@@ -218,4 +219,57 @@ input[type="number"]::-webkit-inner-spin-button {
 input[type="number"] {
   -moz-appearance: textfield;
   appearance: textfield;
+}
+
+/* 優化 UI 新增樣式 */
+
+/* 槓桿設定專用網格：允許更窄的欄位以便並排顯示 */
+.leverage-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+/* 按鈕群組容器 */
+.action-buttons {
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+/* 自動設定按鈕 */
+.btn-simulate.btn-auto {
+  background: #17a2b8;
+  flex: 1;
+  min-width: 200px;
+}
+.btn-simulate.btn-auto:hover {
+  background: #138496;
+  box-shadow: 0 5px 15px rgba(23, 162, 184, 0.3);
+}
+
+/* 重置按鈕 */
+.btn-simulate.btn-reset {
+  background: #6c757d;
+  flex: 1;
+  min-width: 150px;
+}
+.btn-simulate.btn-reset:hover {
+  background: #5a6268;
+  box-shadow: 0 5px 15px rgba(108, 117, 125, 0.3);
+}
+
+/* 執行模擬按鈕 (強調) */
+.btn-simulate.btn-run {
+  margin-top: 10px;
+  font-size: 1.3em;
+  padding: 18px;
+  box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+}
+.btn-simulate.btn-run:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 25px rgba(102, 126, 234, 0.5);
 }
