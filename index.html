@@ -27,6 +27,7 @@
                 value="30"
                 min="20"
                 max="80"
+                oninput="updateLeverageInputsState()"
               />
             </div>
             <div class="form-group">
@@ -66,8 +67,8 @@
               <input
                 type="number"
                 id="annualInflation"
-                placeholder="例：3"
-                value="3"
+                placeholder="例：2"
+                value="2"
                 min="0"
                 max="10"
                 step="0.5"
@@ -106,71 +107,140 @@
             </div>
           </div>
 
-          <h2>🎯 槓桿倍數設定（不同年齡階段）</h2>
-          <div class="form-grid">
+          <h2>🎯 槓桿倍數設定（每 5 年一區間）</h2>
+          <div class="leverage-grid">
             <div class="form-group">
-              <label for="lev2030">20～30 歲槓桿倍數</label>
+              <label for="lev2025">20～25 歲</label>
               <input
                 type="number"
-                id="lev2030"
+                id="lev2025"
                 placeholder="例：1"
                 value="1"
                 min="1"
                 max="3"
-                step="0.5"
+                step="0.01"
               />
             </div>
             <div class="form-group">
-              <label for="lev3040">30～40 歲槓桿倍數</label>
+              <label for="lev2530">25～30 歲</label>
               <input
                 type="number"
-                id="lev3040"
+                id="lev2530"
                 placeholder="例：1"
                 value="1"
                 min="1"
                 max="3"
-                step="0.5"
+                step="0.01"
               />
             </div>
             <div class="form-group">
-              <label for="lev4050">40～50 歲槓桿倍數</label>
+              <label for="lev3035">30～35 歲</label>
               <input
                 type="number"
-                id="lev4050"
+                id="lev3035"
                 placeholder="例：1"
                 value="1"
                 min="1"
                 max="3"
-                step="0.5"
+                step="0.01"
               />
             </div>
             <div class="form-group">
-              <label for="lev5060">50～60 歲槓桿倍數</label>
+              <label for="lev3540">35～40 歲</label>
               <input
                 type="number"
-                id="lev5060"
+                id="lev3540"
                 placeholder="例：1"
                 value="1"
                 min="1"
                 max="3"
-                step="0.5"
+                step="0.01"
               />
             </div>
             <div class="form-group">
-              <label for="lev60plus">60 歲以上槓桿倍數</label>
+              <label for="lev4045">40～45 歲</label>
               <input
                 type="number"
-                id="lev60plus"
+                id="lev4045"
                 placeholder="例：1"
                 value="1"
                 min="1"
                 max="3"
-                step="0.5"
+                step="0.01"
+              />
+            </div>
+            <div class="form-group">
+              <label for="lev4550">45～50 歲</label>
+              <input
+                type="number"
+                id="lev4550"
+                placeholder="例：1"
+                value="1"
+                min="1"
+                max="3"
+                step="0.01"
+              />
+            </div>
+            <div class="form-group">
+              <label for="lev5055">50～55 歲</label>
+              <input
+                type="number"
+                id="lev5055"
+                placeholder="例：1"
+                value="1"
+                min="1"
+                max="3"
+                step="0.01"
+              />
+            </div>
+            <div class="form-group">
+              <label for="lev5560">55～60 歲</label>
+              <input
+                type="number"
+                id="lev5560"
+                placeholder="例：1"
+                value="1"
+                min="1"
+                max="3"
+                step="0.01"
+              />
+            </div>
+            <div class="form-group">
+              <label for="lev6065">60～65 歲</label>
+              <input
+                type="number"
+                id="lev6065"
+                placeholder="例：1"
+                value="1"
+                min="1"
+                max="3"
+                step="0.01"
+              />
+            </div>
+            <div class="form-group">
+              <label for="lev65plus">65 歲以上</label>
+              <input
+                type="number"
+                id="lev65plus"
+                placeholder="例：1"
+                value="1"
+                min="1"
+                max="3"
+                step="0.01"
               />
             </div>
           </div>
 
-          <button class="btn-simulate" onclick="runSimulation()">
+          <div class="action-buttons">
+            <button class="btn-simulate btn-auto" onclick="autoSetLeverage()">
+              ⚡ 自動設定建議槓桿倍數
+            </button>
+            <button class="btn-simulate btn-reset" onclick="resetLeverage()">
+              🔄 取消槓桿
+            </button>
+          </div>
+
+          <button class="btn-simulate btn-run" onclick="runSimulation()">
             🚀 開始模擬
           </button>
         </section>
