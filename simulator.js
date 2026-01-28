@@ -17,15 +17,15 @@ function runSimulation() {
 
   const leverageSettings = {
     lev2025: parseFloat(document.getElementById("lev2025").value),
-    lev2530: parseFloat(document.getElementById("lev2530").value),
-    lev3035: parseFloat(document.getElementById("lev3035").value),
-    lev3540: parseFloat(document.getElementById("lev3540").value),
-    lev4045: parseFloat(document.getElementById("lev4045").value),
-    lev4550: parseFloat(document.getElementById("lev4550").value),
-    lev5055: parseFloat(document.getElementById("lev5055").value),
-    lev5560: parseFloat(document.getElementById("lev5560").value),
-    lev6065: parseFloat(document.getElementById("lev6065").value),
-    lev65plus: parseFloat(document.getElementById("lev65plus").value),
+    lev2630: parseFloat(document.getElementById("lev2630").value),
+    lev3135: parseFloat(document.getElementById("lev3135").value),
+    lev3640: parseFloat(document.getElementById("lev3640").value),
+    lev4145: parseFloat(document.getElementById("lev4145").value),
+    lev4650: parseFloat(document.getElementById("lev4650").value),
+    lev5155: parseFloat(document.getElementById("lev5155").value),
+    lev5660: parseFloat(document.getElementById("lev5660").value),
+    lev6165: parseFloat(document.getElementById("lev6165").value),
+    lev66plus: parseFloat(document.getElementById("lev66plus").value),
   };
 
   // 驗證輸入
@@ -113,26 +113,26 @@ function simulate(
 
     // --- 步驟 1: 確定當年度適用的槓桿倍數 ---
     let lev;
-    if (age < 25) {
+    if (age <= 25) {
       lev = leverageSettings.lev2025;
-    } else if (age < 30) {
-      lev = leverageSettings.lev2530;
-    } else if (age < 35) {
-      lev = leverageSettings.lev3035;
-    } else if (age < 40) {
-      lev = leverageSettings.lev3540;
-    } else if (age < 45) {
-      lev = leverageSettings.lev4045;
-    } else if (age < 50) {
-      lev = leverageSettings.lev4550;
-    } else if (age < 55) {
-      lev = leverageSettings.lev5055;
-    } else if (age < 60) {
-      lev = leverageSettings.lev5560;
-    } else if (age < 65) {
-      lev = leverageSettings.lev6065;
+    } else if (age <= 30) {
+      lev = leverageSettings.lev2630;
+    } else if (age <= 35) {
+      lev = leverageSettings.lev3135;
+    } else if (age <= 40) {
+      lev = leverageSettings.lev3640;
+    } else if (age <= 45) {
+      lev = leverageSettings.lev4145;
+    } else if (age <= 50) {
+      lev = leverageSettings.lev4650;
+    } else if (age <= 55) {
+      lev = leverageSettings.lev5155;
+    } else if (age <= 60) {
+      lev = leverageSettings.lev5660;
+    } else if (age <= 65) {
+      lev = leverageSettings.lev6165;
     } else {
-      lev = leverageSettings.lev65plus;
+      lev = leverageSettings.lev66plus;
     }
 
     // --- 步驟 2: 計算有效報酬率 ---
@@ -434,15 +434,15 @@ function autoSetLeverage() {
 
   const buckets = {
     lev2025: [],
-    lev2530: [],
-    lev3035: [],
-    lev3540: [],
-    lev4045: [],
-    lev4550: [],
-    lev5055: [],
-    lev5560: [],
-    lev6065: [],
-    lev65plus: [],
+    lev2630: [],
+    lev3135: [],
+    lev3640: [],
+    lev4145: [],
+    lev4650: [],
+    lev5155: [],
+    lev5660: [],
+    lev6165: [],
+    lev66plus: [],
   };
 
   while (simAge <= retireAge) {
@@ -460,15 +460,15 @@ function autoSetLeverage() {
       leverage = Math.max(1.0, Math.min(2.0, totalWealth / netAsset));
     }
 
-    if (simAge < 25) buckets.lev2025.push(leverage);
-    else if (simAge < 30) buckets.lev2530.push(leverage);
-    else if (simAge < 35) buckets.lev3035.push(leverage);
-    else if (simAge < 40) buckets.lev3540.push(leverage);
-    else if (simAge < 45) buckets.lev4045.push(leverage);
-    else if (simAge < 50) buckets.lev4550.push(leverage);
-    else if (simAge < 55) buckets.lev5055.push(leverage);
-    else if (simAge < 60) buckets.lev5560.push(leverage);
-    else if (simAge < 65) buckets.lev6065.push(leverage);
+    if (simAge <= 25) buckets.lev2025.push(leverage);
+    else if (simAge <= 30) buckets.lev2630.push(leverage);
+    else if (simAge <= 35) buckets.lev3135.push(leverage);
+    else if (simAge <= 40) buckets.lev3640.push(leverage);
+    else if (simAge <= 45) buckets.lev4145.push(leverage);
+    else if (simAge <= 50) buckets.lev4650.push(leverage);
+    else if (simAge <= 55) buckets.lev5155.push(leverage);
+    else if (simAge <= 60) buckets.lev5660.push(leverage);
+    else if (simAge <= 65) buckets.lev6165.push(leverage);
     else buckets.lev65plus.push(leverage);
 
     const exposure = netAsset * leverage;
@@ -493,15 +493,15 @@ function autoSetLeverage() {
 function resetLeverage() {
   [
     "lev2025",
-    "lev2530",
-    "lev3035",
-    "lev3540",
-    "lev4045",
-    "lev4550",
-    "lev5055",
-    "lev5560",
-    "lev6065",
-    "lev65plus",
+    "lev2630",
+    "lev3135",
+    "lev3640",
+    "lev4145",
+    "lev4650",
+    "lev5155",
+    "lev5660",
+    "lev6165",
+    "lev66plus",
   ].forEach((id) => {
     document.getElementById(id).value = "1";
   });
@@ -512,16 +512,16 @@ function updateLeverageInputsState() {
   const currentAge = parseInt(document.getElementById("currentAge").value) || 0;
 
   const ranges = [
-    { id: "lev2025", end: 25 },
-    { id: "lev2530", end: 30 },
-    { id: "lev3035", end: 35 },
-    { id: "lev3540", end: 40 },
-    { id: "lev4045", end: 45 },
-    { id: "lev4550", end: 50 },
-    { id: "lev5055", end: 55 },
-    { id: "lev5560", end: 60 },
-    { id: "lev6065", end: 65 },
-    { id: "lev65plus", end: 999 },
+    { id: "lev2025", end: 26 },
+    { id: "lev2630", end: 31 },
+    { id: "lev3135", end: 36 },
+    { id: "lev3640", end: 41 },
+    { id: "lev4145", end: 46 },
+    { id: "lev4650", end: 51 },
+    { id: "lev5155", end: 56 },
+    { id: "lev5660", end: 61 },
+    { id: "lev6165", end: 66 },
+    { id: "lev66plus", end: 999 },
   ];
 
   ranges.forEach((range) => {
