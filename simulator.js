@@ -96,9 +96,8 @@ function simulate(
   let retireValPoint = 0;
   let deathAgePoint = null;
 
-  // 計算退休時的初始調整提領額 (將現值通膨調整至退休那一年)
-  let adjustedWithdraw =
-    withdrawAmount * Math.pow(1 + annualInflation, retireAge - currentAge);
+  // 設定退休當年的初始提領額 (使用者輸入即為退休當年的名目金額，不需從現在開始通膨調整)
+  let adjustedWithdraw = withdrawAmount;
 
   // 主模擬迴圈
   for (let age = currentAge; age <= 100; age++) {
