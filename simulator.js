@@ -469,7 +469,7 @@ function autoSetLeverage() {
     else if (simAge <= 55) buckets.lev5155.push(leverage);
     else if (simAge <= 60) buckets.lev5660.push(leverage);
     else if (simAge <= 65) buckets.lev6165.push(leverage);
-    else buckets.lev65plus.push(leverage);
+    else buckets.lev66plus.push(leverage);
 
     const exposure = netAsset * leverage;
     netAsset =
