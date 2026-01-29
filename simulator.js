@@ -7,6 +7,8 @@ function runSimulation() {
   const monthlyInv = parseFloat(document.getElementById("monthlyInv").value);
   const annualReturn =
     parseFloat(document.getElementById("annualReturn").value) / 100;
+  const annualVolatility =
+    parseFloat(document.getElementById("annualVolatility").value) / 100;
   const annualInflation =
     parseFloat(document.getElementById("annualInflation").value) / 100;
   const targetNW = parseFloat(document.getElementById("targetNW").value);
@@ -39,6 +41,7 @@ function runSimulation() {
     currentNW,
     monthlyInv,
     annualReturn,
+    annualVolatility,
     annualInflation,
     targetNW,
     retireAge,
@@ -81,97 +84,145 @@ function simulate(
   currentNW,
   monthlyInv,
   annualReturn,
+  annualVolatility,
   annualInflation,
   targetNW,
   retireAge,
   withdrawAmount,
   leverageSettings,
 ) {
+  const SIMULATION_COUNT = 1000; // 模擬次數
+  const allPaths = []; // 儲存所有模擬路徑
   const ages = [];
-  const netWorths = [];
-  let balance = currentNW;
+  for (let a = currentAge; a <= 100; a++) ages.push(a);
 
-  let targetAgePoint = null;
-  let targetValPoint = 0;
-  let retireValPoint = 0;
-  let deathAgePoint = null;
+  // 統計數據
+  let successCount = 0; // 資金維持到100歲的次數
+  let targetReachedCount = 0; // 達成目標資產的次數
 
-  // 設定退休當年的初始提領額 (使用者輸入即為退休當年的名目金額，不需從現在開始通膨調整)
-  let adjustedWithdraw = withdrawAmount;
-
-  // 主模擬迴圈
-  for (let age = currentAge; age <= 100; age++) {
-    ages.push(age);
-    netWorths.push(balance);
-
-    // 紀錄目標達成點
-    if (targetAgePoint === null && balance >= targetNW) {
-      targetAgePoint = age;
-      targetValPoint = balance;
-    }
-
-    // --- 步驟 1: 確定當年度適用的槓桿倍數 ---
-    let lev;
-    if (age <= 25) {
-      lev = leverageSettings.lev2025;
-    } else if (age <= 30) {
-      lev = leverageSettings.lev2630;
-    } else if (age <= 35) {
-      lev = leverageSettings.lev3135;
-    } else if (age <= 40) {
-      lev = leverageSettings.lev3640;
-    } else if (age <= 45) {
-      lev = leverageSettings.lev4145;
-    } else if (age <= 50) {
-      lev = leverageSettings.lev4650;
-    } else if (age <= 55) {
-      lev = leverageSettings.lev5155;
-    } else if (age <= 60) {
-      lev = leverageSettings.lev5660;
-    } else if (age <= 65) {
-      lev = leverageSettings.lev6165;
-    } else {
-      lev = leverageSettings.lev66plus;
-    }
-
-    // --- 步驟 2: 計算有效報酬率 ---
-    // 公式: 有效報酬 = 槓桿倍數 * 市場報酬
-    const effRet = lev * annualReturn;
-
-    // --- 步驟 3: 根據是否退休執行資金進出 ---
-    if (age < retireAge) {
-      // 累積階段：本金複利 + 年底投入儲蓄
-      balance = balance * (1 + effRet) + (monthlyInv * 12) / 10000;
-    } else {
-      // 退休階段
-      if (age === retireAge) {
-        retireValPoint = balance;
-      }
-
-      // 檢查資產是否還有剩餘
-      if (balance > 0) {
-        // 邏輯：年初先提領生活費，剩餘資金以"有效報酬率"繼續複利
-        balance = (balance - adjustedWithdraw) * (1 + effRet);
-
-        // 通膨調整下一年提領額
-        adjustedWithdraw *= 1 + annualInflation;
-
-        // 資金耗盡檢查
-        if (balance < 0) {
-          balance = 0;
-          if (deathAgePoint === null) {
-            deathAgePoint = age;
-          }
-        }
-      } else {
-        // 資金已耗盡，保持為0
-        if (deathAgePoint === null) {
-          deathAgePoint = age;
-        }
-        balance = 0;
-      }
-    }
+  // Box-Muller 轉換：產生標準常態分佈隨機數 (Mean=0, StdDev=1)
+  function randn_bm() {
+    let u = 0,
+      v = 0;
+    while (u === 0) u = Math.random();
+    while (v === 0) v = Math.random();
+    return Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v);
   }
+
+  // 執行多次模擬
+  for (let i = 0; i < SIMULATION_COUNT; i++) {
+    let balance = currentNW;
+    let adjustedWithdraw = withdrawAmount;
+    const path = [];
+    let hasReachedTarget = false;
+    let isBankrupt = false;
+
+    for (let age = currentAge; age <= 100; age++) {
+      path.push(balance);
+
+      // 檢查目標達成
+      if (!hasReachedTarget && balance >= targetNW) {
+        hasReachedTarget = true;
+      }
+
+      // --- 步驟 1: 確定當年度適用的槓桿倍數 ---
+      let lev;
+      if (age <= 25) lev = leverageSettings.lev2025;
+      else if (age <= 30) lev = leverageSettings.lev2630;
+      else if (age <= 35) lev = leverageSettings.lev3135;
+      else if (age <= 40) lev = leverageSettings.lev3640;
+      else if (age <= 45) lev = leverageSettings.lev4145;
+      else if (age <= 50) lev = leverageSettings.lev4650;
+      else if (age <= 55) lev = leverageSettings.lev5155;
+      else if (age <= 60) lev = leverageSettings.lev5660;
+      else if (age <= 65) lev = leverageSettings.lev6165;
+      else lev = leverageSettings.lev66plus;
+
+      // --- 步驟 2: 計算隨機市場報酬 ---
+      // 隨機市場報酬 = 平均報酬 + 波動率 * 常態隨機數
+      const randomMarketReturn = annualReturn + annualVolatility * randn_bm();
+
+      // 有效報酬 = (槓桿 * 市場報酬) - (借貸成本)
+      // 假設借貸成本 = 通膨率 (與 autoSetLeverage 邏輯一致)
+      const effRet = lev * randomMarketReturn - (lev - 1) * annualInflation;
+
+      // --- 步驟 3: 資金進出 ---
+      if (age < retireAge) {
+        // 累積階段
+        balance = balance * (1 + effRet) + (monthlyInv * 12) / 10000;
+      } else {
+        // 退休階段
+        if (balance > 0) {
+          balance = (balance - adjustedWithdraw) * (1 + effRet);
+          adjustedWithdraw *= 1 + annualInflation;
+        }
+        if (balance <= 0) {
+          balance = 0;
+          isBankrupt = true;
+        }
+      }
+    }
+
+    allPaths.push(path);
+    if (hasReachedTarget) targetReachedCount++;
+    if (!isBankrupt) successCount++;
+  }
+
+  // 計算分位數 (P10, P50, P90)
+  const p25Path = []; // 悲觀 (第25百分位)
+  const p50Path = []; // 中位數 (第50百分位)
+  const p75Path = []; // 樂觀 (第75百分位)
+
+  const years = 100 - currentAge + 1;
+  for (let t = 0; t < years; t++) {
+    // 取得該年度所有模擬的資產數值
+    const yearValues = allPaths.map((p) => p[t]);
+    // 排序
+    yearValues.sort((a, b) => a - b);
+
+    p25Path.push(yearValues[Math.floor(SIMULATION_COUNT * 0.25)]);
+    p50Path.push(yearValues[Math.floor(SIMULATION_COUNT * 0.5)]);
+    p75Path.push(yearValues[Math.floor(SIMULATION_COUNT * 0.75)]);
+  }
+
+  // Helper function to find key points for a given path
+  function getPathKeyPoints(path, ages, targetNW, retireAge) {
+    let targetAgePoint = null;
+    let targetValPoint = null;
+    let deathAgePoint = null;
+    let retireValPoint = 0;
+    const retireIndex = retireAge - ages[0];
+
+    if (retireIndex >= 0 && retireIndex < path.length) {
+      retireValPoint = path[retireIndex];
+    }
+
+    for (let i = 0; i < path.length; i++) {
+      const age = ages[i];
+      const val = path[i];
+      if (targetAgePoint === null && val >= targetNW) {
+        targetAgePoint = age;
+        targetValPoint = val;
+      }
+      if (deathAgePoint === null && val <= 0 && age >= retireAge) {
+        deathAgePoint = age;
+      }
+    }
+
+    const endValPoint = path[path.length - 1];
+
+    return {
+      targetAgePoint,
+      targetValPoint,
+      deathAgePoint,
+      retireValPoint,
+      endValPoint,
+    };
+  }
+
+  const keyPointsP25 = getPathKeyPoints(p25Path, ages, targetNW, retireAge);
+  const keyPointsP50 = getPathKeyPoints(p50Path, ages, targetNW, retireAge);
+  const keyPointsP75 = getPathKeyPoints(p75Path, ages, targetNW, retireAge);
 
   // 計算總投入成本（工作年數 × 每月投入 × 12 個月 / 10000 轉為萬元）
   const totalInvestmentYears = retireAge - currentAge;
@@ -179,11 +230,14 @@ function simulate(
 
   return {
     ages: ages,
-    netWorths: netWorths,
-    targetAgePoint: targetAgePoint,
-    targetValPoint: targetValPoint,
-    retireValPoint: retireValPoint,
-    deathAgePoint: deathAgePoint,
+    p25Path: p25Path,
+    p50Path: p50Path,
+    p75Path: p75Path,
+    p25: keyPointsP25,
+    p50: keyPointsP50,
+    p75: keyPointsP75,
+    successRate: (successCount / SIMULATION_COUNT) * 100,
+    targetRate: (targetReachedCount / SIMULATION_COUNT) * 100,
     currentAge: currentAge,
     retireAge: retireAge,
     totalInvestmentCost: totalInvestmentCost,
@@ -191,24 +245,44 @@ function simulate(
 }
 
 function displayResults(results) {
-  // 顯示關鍵數值
-  let targetText = results.targetAgePoint
-    ? `${results.targetAgePoint} 歲達成，資產 ${results.targetValPoint.toFixed(0)} 萬元`
-    : "未達成目標淨資產";
+  // Helper to format text for each scenario
+  function formatScenarioText(points) {
+    const fmt = (v) => (v !== null && v !== undefined ? v.toFixed(0) : "0");
 
-  let retireText = `${results.retireValPoint.toFixed(2)} 萬元`;
+    const targetText = points.targetAgePoint
+      ? `${points.targetAgePoint} 歲，${fmt(points.targetValPoint)} 萬元`
+      : "未達成";
+    const deathText = points.deathAgePoint
+      ? `${points.deathAgePoint} 歲資金耗盡`
+      : `100 歲仍有 ${fmt(points.endValPoint)} 萬元`;
 
-  let deathText = results.deathAgePoint
-    ? `${results.deathAgePoint} 歲（可支撐 ${results.deathAgePoint - results.retireAge} 年）`
-    : "資產足以支撐至 100 歲以上";
+    const retireText = `${results.retireAge} 歲，${fmt(points.retireValPoint)} 萬元`;
+    return { targetText, retireText, deathText };
+  }
 
-  let totalInvestmentText = `${results.totalInvestmentCost.toFixed(2)} 萬元`;
+  // Populate results for all 3 scenarios
+  const textP25 = formatScenarioText(results.p25);
+  document.getElementById("targetResultP25").textContent = textP25.targetText;
+  document.getElementById("retireResultP25").textContent = textP25.retireText;
+  document.getElementById("deathResultP25").textContent = textP25.deathText;
 
-  document.getElementById("targetResult").textContent = targetText;
-  document.getElementById("retireResult").textContent = retireText;
-  document.getElementById("deathResult").textContent = deathText;
+  const textP50 = formatScenarioText(results.p50);
+  document.getElementById("targetResultP50").textContent = textP50.targetText;
+  document.getElementById("retireResultP50").textContent = textP50.retireText;
+  document.getElementById("deathResultP50").textContent = textP50.deathText;
+
+  const textP75 = formatScenarioText(results.p75);
+  document.getElementById("targetResultP75").textContent = textP75.targetText;
+  document.getElementById("retireResultP75").textContent = textP75.retireText;
+  document.getElementById("deathResultP75").textContent = textP75.deathText;
+
+  // Populate summary bar
   document.getElementById("totalInvestmentResult").textContent =
-    totalInvestmentText;
+    `${results.totalInvestmentCost.toFixed(2)} 萬元`;
+  document.getElementById("targetRateResult").textContent =
+    `${results.targetRate.toFixed(1)}%`;
+  document.getElementById("successRateResult").textContent =
+    `${results.successRate.toFixed(1)}%`;
 
   // 繪製圖表
   drawChart(results);
@@ -223,7 +297,7 @@ function drawChart(results) {
   }
 
   // 準備資料
-  const maxVal = Math.max(...results.netWorths);
+  const maxVal = Math.max(...results.p75Path); // 使用 P75 作為最大值參考
   const useYi = maxVal >= 10000; // 是否顯示為億元
 
   // 用於標籤的格式化函數
@@ -243,15 +317,33 @@ function drawChart(results) {
       labels: results.ages,
       datasets: [
         {
-          label: "淨資產動態路徑",
-          data: results.netWorths,
+          label: "中位數 (P50)",
+          data: results.p50Path,
           borderColor: "#1f77b4",
-          backgroundColor: "rgba(31, 119, 180, 0.1)",
+          backgroundColor: "transparent",
           borderWidth: 3,
-          fill: true,
           tension: 0.4,
           pointRadius: 0,
-          pointHoverRadius: 6,
+        },
+        {
+          label: "樂觀情境 (P75)",
+          data: results.p75Path,
+          borderColor: "rgba(76, 175, 80, 0.5)",
+          backgroundColor: "rgba(76, 175, 80, 0.1)",
+          borderWidth: 1,
+          tension: 0.4,
+          pointRadius: 0,
+          fill: false, // 不填充到底部
+        },
+        {
+          label: "悲觀情境 (P25)",
+          data: results.p25Path,
+          borderColor: "rgba(244, 67, 54, 0.5)",
+          backgroundColor: "rgba(31, 119, 180, 0.2)", // 填充顏色 (P10 到 P90 之間)
+          borderWidth: 1,
+          tension: 0.4,
+          pointRadius: 0,
+          fill: "-1", // 填充到上一個 dataset (即 P75)
         },
       ],
     },
@@ -259,18 +351,32 @@ function drawChart(results) {
       responsive: true,
       maintainAspectRatio: false,
       plugins: {
+        tooltip: {
+          callbacks: {
+            label: function (context) {
+              let label = context.dataset.label || "";
+              if (label) {
+                label += ": ";
+              }
+              if (context.parsed.y !== null) {
+                label += formatValue(context.parsed.y) + " " + unitText;
+              }
+              return label;
+            },
+          },
+        },
         legend: {
           display: true,
           labels: {
             font: { size: 12 },
             padding: 15,
             generateLabels: function (chart) {
-              // 基礎圖例項目 - 第一個 dataset（淨資產動態路徑）保持原樣
+              // 基礎圖例項目
               const baseLabels =
                 Chart.defaults.plugins.legend.labels.generateLabels(chart);
 
-              // 移除後續的圖例項目，只保留第一個
-              const filteredLabels = baseLabels.slice(0, 1);
+              // 保留 P50, P90, P10 的圖例
+              const filteredLabels = baseLabels.slice(0, 3);
 
               // 新增自訂圖例項目（使用 pointStyle 显示為圓點）
               const customLabels = [
@@ -280,7 +386,7 @@ function drawChart(results) {
                   strokeStyle: "#000",
                   lineWidth: 2,
                   hidden: false,
-                  index: 1,
+                  index: 3,
                   pointStyle: "circle",
                 },
                 {
@@ -289,7 +395,7 @@ function drawChart(results) {
                   strokeStyle: "#000",
                   lineWidth: 2,
                   hidden: false,
-                  index: 2,
+                  index: 4,
                   pointStyle: "circle",
                 },
                 {
@@ -298,7 +404,7 @@ function drawChart(results) {
                   strokeStyle: "#000",
                   lineWidth: 2,
                   hidden: false,
-                  index: 3,
+                  index: 5,
                   pointStyle: "circle",
                 },
               ];
@@ -309,7 +415,7 @@ function drawChart(results) {
         },
         title: {
           display: true,
-          text: "生命週期投資計畫關鍵節點模擬",
+          text: "蒙地卡羅模擬資產路徑 (1000次模擬)",
           font: { size: 16 },
         },
       },
@@ -349,11 +455,13 @@ function drawChart(results) {
           const xLabels = chart.data.labels;
 
           // 標記目標達成點
-          if (results.targetAgePoint) {
-            const targetIndex = xLabels.indexOf(results.targetAgePoint);
+          if (results.p50.targetAgePoint) {
+            const targetIndex = xLabels.indexOf(results.p50.targetAgePoint);
             if (targetIndex >= 0) {
               const targetX = xScale.getPixelForValue(targetIndex);
-              const targetY = yScale.getPixelForValue(results.targetValPoint);
+              const targetY = yScale.getPixelForValue(
+                results.p50Path[targetIndex],
+              );
 
               // 繪製點
               ctx.fillStyle = "#FF9800";
@@ -368,8 +476,8 @@ function drawChart(results) {
           }
 
           // 標記資金耗盡點
-          if (results.deathAgePoint) {
-            const deathIndex = xLabels.indexOf(results.deathAgePoint);
+          if (results.p50.deathAgePoint) {
+            const deathIndex = xLabels.indexOf(results.p50.deathAgePoint);
             if (deathIndex >= 0) {
               const deathX = xScale.getPixelForValue(deathIndex);
               const deathY = yScale.getPixelForValue(0);
@@ -389,7 +497,7 @@ function drawChart(results) {
           const retireIndex = xLabels.indexOf(results.retireAge);
           if (retireIndex >= 0) {
             const retireX = xScale.getPixelForValue(retireIndex);
-            const retireY = yScale.getPixelForValue(results.retireValPoint);
+            const retireY = yScale.getPixelForValue(results.p50.retireValPoint);
             ctx.fillStyle = "#4CAF50";
             ctx.beginPath();
             ctx.arc(retireX, retireY, 6, 0, 2 * Math.PI);

@@ -45,13 +45,21 @@
               <input
                 type="number"
                 id="monthlyInv"
-                placeholder="例：20000"
-                value="20000"
+                placeholder="例：10000"
+                value="10000"
                 min="0"
               />
             </div>
             <div class="form-group">
-              <label for="annualReturn">預期年化報酬率（%）</label>
+              <label for="annualReturn">
+                <span class="tooltip-container">
+                  💡
+                  <span class="tooltip-text"
+                    >預設以指數型ETF的年化報酬率設定，以台灣50、標普500為例，通常為7%~10%。</span
+                  >
+                </span>
+                預期年化報酬率（%）</label
+              >
               <input
                 type="number"
                 id="annualReturn"
@@ -59,6 +67,26 @@
                 value="8"
                 min="0"
                 max="20"
+                step="0.5"
+              />
+            </div>
+            <div class="form-group">
+              <label for="annualVolatility">
+                <span class="tooltip-container">
+                  💡
+                  <span class="tooltip-text"
+                    >預設以指數型ETF的年化波動率設定，以台灣50、標普500為例，通常為15%~20%。</span
+                  >
+                </span>
+                預期年化波動率（%）</label
+              >
+              <input
+                type="number"
+                id="annualVolatility"
+                placeholder="例：15"
+                value="15"
+                min="0"
+                max="50"
                 step="0.5"
               />
             </div>
@@ -96,12 +124,20 @@
               />
             </div>
             <div class="form-group">
-              <label for="withdrawAmount">退休後每年提領金額（萬元）</label>
+              <label for="withdrawAmount">
+                <span class="tooltip-container">
+                  💡
+                  <span class="tooltip-text"
+                    >退休當年提領金額，往後每年提領金額將隨通膨調整以維持實質購買力。</span
+                  >
+                </span>
+                退休後每年提領金額（萬元）</label
+              >
               <input
                 type="number"
                 id="withdrawAmount"
-                placeholder="例：50"
-                value="50"
+                placeholder="例：100"
+                value="100"
                 min="0"
               />
             </div>
@@ -251,23 +287,72 @@
           style="display: none"
         >
           <h2>📊 模擬結果</h2>
+          <p class="simulation-description">
+            本模擬方式套用蒙地卡羅模擬1000次人生路徑，分為樂觀、平均及悲觀三種情形。
+          </p>
           <div class="results-grid">
-            <div class="result-card">
-              <h3>🎯 目標達成</h3>
-              <p id="targetResult">計算中...</p>
+            <div class="result-card scenario-card">
+              <h3>悲觀情境 (P25)</h3>
+              <div class="scenario-details">
+                <p>
+                  <strong>目標達成:</strong> <span id="targetResultP25"></span>
+                </p>
+                <p>
+                  <strong>退休時資產:</strong>
+                  <span id="retireResultP25"></span>
+                </p>
+                <p>
+                  <strong>資金耗盡:</strong> <span id="deathResultP25"></span>
+                </p>
+              </div>
             </div>
-            <div class="result-card">
-              <h3>🏠 退休時資產</h3>
-              <p id="retireResult">計算中...</p>
+            <div class="result-card scenario-card">
+              <h3>平均情境 (P50)</h3>
+              <div class="scenario-details">
+                <p>
+                  <strong>目標達成:</strong> <span id="targetResultP50"></span>
+                </p>
+                <p>
+                  <strong>退休時資產:</strong>
+                  <span id="retireResultP50"></span>
+                </p>
+                <p>
+                  <strong>資金耗盡:</strong> <span id="deathResultP50"></span>
+                </p>
+              </div>
             </div>
-            <div class="result-card">
-              <h3>💰 資金耗盡</h3>
-              <p id="deathResult">計算中...</p>
+            <div class="result-card scenario-card">
+              <h3>樂觀情境 (P75)</h3>
+              <div class="scenario-details">
+                <p>
+                  <strong>目標達成:</strong> <span id="targetResultP75"></span>
+                </p>
+                <p>
+                  <strong>退休時資產:</strong>
+                  <span id="retireResultP75"></span>
+                </p>
+                <p>
+                  <strong>資金耗盡:</strong> <span id="deathResultP75"></span>
+                </p>
+              </div>
             </div>
-            <div class="result-card">
-              <h3>💵 總投入成本</h3>
-              <p id="totalInvestmentResult">計算中...</p>
-            </div>
+          </div>
+          <div class="investment-summary">
+            <span
+              >💵 總投入成本：<strong id="totalInvestmentResult"
+                >計算中...</strong
+              ></span
+            >
+            <span
+              >🎯 目標淨資產達成率：<strong id="targetRateResult"
+                >計算中...</strong
+              ></span
+            >
+            <span
+              >🛡️ 資金未耗盡成功率：<strong id="successRateResult"
+                >計算中...</strong
+              ></span
+            >
           </div>
 
           <div class="chart-container">

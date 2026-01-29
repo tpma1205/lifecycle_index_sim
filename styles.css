@@ -18,7 +18,6 @@ body {
   background: white;
   border-radius: 15px;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-  overflow: hidden;
 }
 
 header {
@@ -71,6 +70,20 @@ h2 {
   font-weight: 600;
   margin-bottom: 8px;
   color: #555;
+}
+
+.form-group label {
+  display: flex;
+  align-items: center;
+}
+
+.tooltip-container {
+  position: relative;
+  display: inline-block;
+  cursor: help;
+  margin-right: 8px;
+  font-size: 1.2em;
+  line-height: 1;
 }
 
 .form-group input {
@@ -127,10 +140,17 @@ h2 {
   }
 }
 
+.simulation-description {
+  text-align: center;
+  margin-bottom: 30px;
+  font-size: 1.1em;
+  color: #555;
+}
+
 .results-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 20px;
+  gap: 30px;
   margin-bottom: 30px;
 }
 
@@ -153,11 +173,56 @@ h2 {
   font-size: 1.2em;
 }
 
-.result-card p {
+.result-card.single-metric-card p {
   font-size: 1.8em;
   font-weight: bold;
   color: #2d3748;
   margin-top: 5px;
+}
+
+.result-card.scenario-card {
+  text-align: left;
+  padding: 25px;
+  background: linear-gradient(135deg, #f5f7fa 0%, #eef2f7 100%);
+}
+
+.result-card.scenario-card h3 {
+  text-align: center;
+  font-size: 1.4em;
+}
+
+.scenario-details {
+  margin-top: 20px;
+}
+
+.scenario-details p {
+  font-size: 1.05em;
+  color: #2d3748;
+  margin-top: 15px;
+  font-weight: normal;
+  line-height: 1.5;
+}
+
+.scenario-details p strong {
+  color: #667eea;
+  font-weight: 600;
+  min-width: 90px;
+  display: inline-block;
+}
+
+.investment-summary {
+  display: flex;
+  justify-content: space-around;
+  flex-wrap: wrap;
+  gap: 20px;
+  text-align: center;
+  margin-top: -10px;
+  margin-bottom: 30px;
+  padding: 15px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  color: #555;
+  font-size: 1.1em;
 }
 
 .chart-container {
@@ -219,6 +284,31 @@ input[type="number"]::-webkit-inner-spin-button {
 input[type="number"] {
   -moz-appearance: textfield;
   appearance: textfield;
+}
+
+.tooltip-text {
+  visibility: hidden;
+  width: 280px;
+  background-color: #333;
+  color: #fff;
+  text-align: left;
+  border-radius: 6px;
+  padding: 12px 15px;
+  position: absolute;
+  z-index: 100;
+  bottom: 140%;
+  left: 50%;
+  margin-left: -140px;
+  opacity: 0;
+  transition: opacity 0.3s;
+  font-size: 0.9rem;
+  font-weight: 400;
+  line-height: 1.6;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+.tooltip-container:hover .tooltip-text {
+  visibility: visible;
+  opacity: 1;
 }
 
 /* 優化 UI 新增樣式 */
