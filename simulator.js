@@ -54,9 +54,6 @@ function runSimulation() {
 
   // 滾動到結果區域
   document.getElementById("resultsSection").style.display = "block";
-  document
-    .getElementById("resultsSection")
-    .scrollIntoView({ behavior: "smooth" });
 }
 
 function validateInputs(currentAge, currentNW, targetNW, retireAge) {
