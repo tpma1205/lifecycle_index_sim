@@ -97,6 +97,11 @@ function simulate(
   let successCount = 0; // 資金維持到100歲的次數
   let targetReachedCount = 0; // 達成目標資產的次數
 
+  // 修正波動率拖累：將使用者輸入的年化報酬率 (CAGR) 轉換為算術平均 (Arithmetic Mean)
+  // Arithmetic Mean ≈ Geometric Mean + (Variance / 2)
+  const arithmeticMeanReturn =
+    annualReturn + (annualVolatility * annualVolatility) / 2;
+
   // Box-Muller 轉換：產生標準常態分佈隨機數 (Mean=0, StdDev=1)
   function randn_bm() {
     let u = 0,
@@ -136,12 +141,14 @@ function simulate(
       else lev = leverageSettings.lev66plus;
 
       // --- 步驟 2: 計算隨機市場報酬 ---
-      // 隨機市場報酬 = 平均報酬 + 波動率 * 常態隨機數
-      const randomMarketReturn = annualReturn + annualVolatility * randn_bm();
+      // 隨機市場報酬 = 算術平均報酬 + 波動率 * 常態隨機數
+      // 使用算術平均進行模擬，以確保長期幾何平均 (CAGR) 符合使用者設定
+      const randomMarketReturn =
+        arithmeticMeanReturn + annualVolatility * randn_bm();
 
-      // 有效報酬 = (槓桿 * 市場報酬) - (借貸成本)
-      // 假設借貸成本 = 通膨率 (與 autoSetLeverage 邏輯一致)
-      const effRet = lev * randomMarketReturn - (lev - 1) * annualInflation;
+      // 有效報酬 = (槓桿 * 市場報酬)
+      // 使用者目前不計算借貸成本 (假設借貸利率為 0%)
+      const effRet = lev * randomMarketReturn;
 
       // --- 步驟 3: 資金進出 ---
       if (age < retireAge) {
@@ -165,7 +172,7 @@ function simulate(
     if (!isBankrupt) successCount++;
   }
 
-  // 計算分位數 (P10, P50, P90)
+  // 計算分位數 (P25, P50, P75)
   const p25Path = []; // 悲觀 (第25百分位)
   const p50Path = []; // 中位數 (第50百分位)
   const p75Path = []; // 樂觀 (第75百分位)
@@ -336,7 +343,7 @@ function drawChart(results) {
           label: "悲觀情境 (P25)",
           data: results.p25Path,
           borderColor: "rgba(244, 67, 54, 0.5)",
-          backgroundColor: "rgba(31, 119, 180, 0.2)", // 填充顏色 (P10 到 P90 之間)
+          backgroundColor: "rgba(31, 119, 180, 0.2)", // 填充顏色 (P25 到 P75 之間)
           borderWidth: 1,
           tension: 0.4,
           pointRadius: 0,
@@ -372,7 +379,7 @@ function drawChart(results) {
               const baseLabels =
                 Chart.defaults.plugins.legend.labels.generateLabels(chart);
 
-              // 保留 P50, P90, P10 的圖例
+              // 保留 P50, P75, P25 的圖例
               const filteredLabels = baseLabels.slice(0, 3);
 
               // 新增自訂圖例項目（使用 pointStyle 显示為圓點）
@@ -576,11 +583,8 @@ function autoSetLeverage() {
     else buckets.lev66plus.push(leverage);
 
     const exposure = netAsset * leverage;
-    netAsset =
-      netAsset +
-      exposure * annualReturn -
-      (exposure - netAsset) * annualInflation +
-      annualSavings;
+    // 計算資產成長 (假設借貸利率為 0%，且忽略波動率拖累以進行簡易推估)
+    netAsset = netAsset + exposure * annualReturn + annualSavings;
     simAge++;
   }
 
