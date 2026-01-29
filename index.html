@@ -288,14 +288,18 @@
         >
           <h2>📊 模擬結果</h2>
           <p class="simulation-description">
-            本模擬方式套用蒙地卡羅模擬1000次人生路徑，分為樂觀、平均及悲觀三種情形。
+            本模擬方式套用蒙地卡羅模擬1000次人生路徑，分為悲觀(P25)、平均(P50)及樂觀(P75)三種情形。<br />
+            <span style="font-size: 0.9rem; opacity: 0.8"
+              >(P25代表僅優於25%的模擬結果，P50為中位數，P75則代表優於75%的結果)</span
+            >
           </p>
           <div class="results-grid">
             <div class="result-card scenario-card">
-              <h3>悲觀情境 (P25)</h3>
+              <h3>悲觀情境</h3>
               <div class="scenario-details">
                 <p>
-                  <strong>目標達成:</strong> <span id="targetResultP25"></span>
+                  <strong>目標淨資產:</strong>
+                  <span id="targetResultP25"></span>
                 </p>
                 <p>
                   <strong>退休時資產:</strong>
@@ -307,10 +311,11 @@
               </div>
             </div>
             <div class="result-card scenario-card">
-              <h3>平均情境 (P50)</h3>
+              <h3>平均情境</h3>
               <div class="scenario-details">
                 <p>
-                  <strong>目標達成:</strong> <span id="targetResultP50"></span>
+                  <strong>目標淨資產:</strong>
+                  <span id="targetResultP50"></span>
                 </p>
                 <p>
                   <strong>退休時資產:</strong>
@@ -322,10 +327,11 @@
               </div>
             </div>
             <div class="result-card scenario-card">
-              <h3>樂觀情境 (P75)</h3>
+              <h3>樂觀情境</h3>
               <div class="scenario-details">
                 <p>
-                  <strong>目標達成:</strong> <span id="targetResultP75"></span>
+                  <strong>目標淨資產:</strong>
+                  <span id="targetResultP75"></span>
                 </p>
                 <p>
                   <strong>退休時資產:</strong>
@@ -344,12 +350,12 @@
               ></span
             >
             <span
-              >🎯 目標淨資產達成率：<strong id="targetRateResult"
+              >🎯 目標淨資產達成機率：<strong id="targetRateResult"
                 >計算中...</strong
               ></span
             >
             <span
-              >🛡️ 資金未耗盡成功率：<strong id="successRateResult"
+              >🛡️ 資金未耗盡機率：<strong id="successRateResult"
                 >計算中...</strong
               ></span
             >

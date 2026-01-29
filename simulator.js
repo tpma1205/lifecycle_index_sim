@@ -247,7 +247,7 @@ function displayResults(results) {
     const fmt = (v) => (v !== null && v !== undefined ? v.toFixed(0) : "0");
 
     const targetText = points.targetAgePoint
-      ? `${points.targetAgePoint} 歲，${fmt(points.targetValPoint)} 萬元`
+      ? `${points.targetAgePoint} 歲達成，${fmt(points.targetValPoint)} 萬元`
       : "未達成";
     const deathText = points.deathAgePoint
       ? `${points.deathAgePoint} 歲資金耗盡`
