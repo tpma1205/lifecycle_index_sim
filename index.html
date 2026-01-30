@@ -15,8 +15,16 @@
       </header>
 
       <main>
+        <section class="intro-section">
+          <p>
+            本工具旨在模擬透過<strong>定期定額被動投入指數型 ETF</strong>
+            的投資策略，搭配<strong>生命週期投資法</strong>的核心概念。透過蒙地卡羅模擬法進行多次運算，分析在不同市場情境下，您的資產累積是否足以支撐退休後的提領需求，協助您評估理財目標的可行性。
+          </p>
+        </section>
+
         <section class="input-section">
           <h2>📝 基本資料設定</h2>
+          <h3>👤 個人現況</h3>
           <div class="form-grid">
             <div class="form-group">
               <label for="currentAge">當前年齡</label>
@@ -50,6 +58,9 @@
                 min="0"
               />
             </div>
+          </div>
+          <h3>📈 市場設定</h3>
+          <div class="form-grid">
             <div class="form-group">
               <label for="annualReturn">
                 <span class="tooltip-container">
@@ -91,7 +102,16 @@
               />
             </div>
             <div class="form-group">
-              <label for="annualInflation">平均年通膨率（%）</label>
+              <label for="annualInflation">
+                <span class="tooltip-container">
+                  💡
+                  <span class="tooltip-text"
+                    >參考台灣行政院主計處消費者物價指數(CPI)，平均約為 2%
+                    左右。</span
+                  >
+                </span>
+                平均年通膨率（%）</label
+              >
               <input
                 type="number"
                 id="annualInflation"
@@ -102,6 +122,9 @@
                 step="0.5"
               />
             </div>
+          </div>
+          <h3>🏖️ 退休規劃</h3>
+          <div class="form-grid">
             <div class="form-group">
               <label for="targetNW">目標淨資產（萬元）</label>
               <input
@@ -113,7 +136,15 @@
               />
             </div>
             <div class="form-group">
-              <label for="retireAge">預計退休年齡</label>
+              <label for="retireAge">
+                <span class="tooltip-container">
+                  💡
+                  <span class="tooltip-text"
+                    >達退休年齡後，將不再加計每月投入金額。</span
+                  >
+                </span>
+                預計退休年齡</label
+              >
               <input
                 type="number"
                 id="retireAge"
@@ -143,7 +174,7 @@
             </div>
           </div>
 
-          <h2>🎯 槓桿倍數設定（每 5 年一區間）</h2>
+          <h2>🎯 槓桿倍數設定</h2>
           <div class="leverage-grid">
             <div class="form-group">
               <label for="lev2025">20~25 歲</label>
