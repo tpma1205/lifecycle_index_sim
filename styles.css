@@ -96,13 +96,14 @@ body {
    SIDEBAR
    ============================================= */
 .sidebar {
-  width: 380px;
+  width: 440px;
   background-color: var(--bg-base);
   display: flex;
   flex-direction: column;
   z-index: 10;
   flex-shrink: 0;
   padding: 24px 0 0;
+  overflow-x: hidden;
 }
 
 /* Brand Header */
@@ -153,6 +154,7 @@ body {
 .scrollable-content {
   flex: 1;
   overflow-y: auto;
+  overflow-x: hidden;
   padding: 24px 28px;
 }
 .scrollable-content::-webkit-scrollbar {
@@ -225,7 +227,7 @@ body {
   position: relative;
   display: flex;
   align-items: center;
-  width: 130px;
+  width: 150px;
 }
 
 .input-wrapper input {
