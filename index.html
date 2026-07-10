@@ -52,7 +52,7 @@
                   id="currentAge"
                   value="30"
                   min="20"
-                  max="80"
+                  max="100"
                   oninput="updateLeverageInputsState()"
                 />
               </div>
@@ -185,43 +185,113 @@
             <div class="leverage-grid">
               <div class="lev-item">
                 <label>20-25</label
-                ><input type="number" id="lev2025" value="1" step="0.01" />
+                ><input
+                  type="number"
+                  id="lev2025"
+                  value="1"
+                  min="0"
+                  max="5"
+                  step="0.01"
+                />
               </div>
               <div class="lev-item">
                 <label>26-30</label
-                ><input type="number" id="lev2630" value="1" step="0.01" />
+                ><input
+                  type="number"
+                  id="lev2630"
+                  value="1"
+                  min="0"
+                  max="5"
+                  step="0.01"
+                />
               </div>
               <div class="lev-item">
                 <label>31-35</label
-                ><input type="number" id="lev3135" value="1" step="0.01" />
+                ><input
+                  type="number"
+                  id="lev3135"
+                  value="1"
+                  min="0"
+                  max="5"
+                  step="0.01"
+                />
               </div>
               <div class="lev-item">
                 <label>36-40</label
-                ><input type="number" id="lev3640" value="1" step="0.01" />
+                ><input
+                  type="number"
+                  id="lev3640"
+                  value="1"
+                  min="0"
+                  max="5"
+                  step="0.01"
+                />
               </div>
               <div class="lev-item">
                 <label>41-45</label
-                ><input type="number" id="lev4145" value="1" step="0.01" />
+                ><input
+                  type="number"
+                  id="lev4145"
+                  value="1"
+                  min="0"
+                  max="5"
+                  step="0.01"
+                />
               </div>
               <div class="lev-item">
                 <label>46-50</label
-                ><input type="number" id="lev4650" value="1" step="0.01" />
+                ><input
+                  type="number"
+                  id="lev4650"
+                  value="1"
+                  min="0"
+                  max="5"
+                  step="0.01"
+                />
               </div>
               <div class="lev-item">
                 <label>51-55</label
-                ><input type="number" id="lev5155" value="1" step="0.01" />
+                ><input
+                  type="number"
+                  id="lev5155"
+                  value="1"
+                  min="0"
+                  max="5"
+                  step="0.01"
+                />
               </div>
               <div class="lev-item">
                 <label>56-60</label
-                ><input type="number" id="lev5660" value="1" step="0.01" />
+                ><input
+                  type="number"
+                  id="lev5660"
+                  value="1"
+                  min="0"
+                  max="5"
+                  step="0.01"
+                />
               </div>
               <div class="lev-item">
                 <label>61-65</label
-                ><input type="number" id="lev6165" value="1" step="0.01" />
+                ><input
+                  type="number"
+                  id="lev6165"
+                  value="1"
+                  min="0"
+                  max="5"
+                  step="0.01"
+                />
               </div>
               <div class="lev-item">
                 <label>66+</label
-                ><input type="number" id="lev66plus" value="1" step="0.01" />
+                ><input
+                  type="number"
+                  id="lev66plus"
+                  value="1"
+                  min="0"
+                  max="5"
+                  step="0.01"
+                />
               </div>
             </div>
           </div>
@@ -239,7 +309,7 @@
       <main class="main-content" id="resultsSection" style="display: none">
         <header class="main-header">
           <h2>模擬運算儀表板</h2>
-          <span class="badge">1,000 Pths Monte Carlo</span>
+          <span class="badge">1,000 Paths Monte Carlo</span>
         </header>
 
         <!-- 頂部重點數據 -->
