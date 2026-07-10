@@ -141,7 +141,12 @@ function simulate(
         arithmeticMeanReturn + annualVolatility * randn_bm();
 
       // Simple logic without explicit cost logic for now
-      const effRet = lev * randomMarketReturn;
+      // Floor at -100%: a leveraged position can't lose more than the capital
+      // at risk in a single period. Without this, effRet can go below -1,
+      // making (1 + effRet) negative — multiplying two negatives together
+      // (e.g. an already-negative balance in the withdrawal phase) flips the
+      // sign back positive and silently "revives" a bankrupt path.
+      const effRet = Math.max(lev * randomMarketReturn, -1);
 
       if (age < retireAge) {
         balance = balance * (1 + effRet) + (monthlyInv * 12) / 10000;
