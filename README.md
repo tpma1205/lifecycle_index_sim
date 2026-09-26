@@ -6,19 +6,20 @@
 
 | 功能             | 說明                                                          |
 | ---------------- | ------------------------------------------------------------- |
-| **蒙地卡羅模擬** | 1,000 條獨立路徑，輸出 P25 / P50 / P75 三種情境               |
+| **蒙地卡羅模擬** | 1,000 條獨立路徑，輸出 P10–P90 分佈與 P25 / P50 / P75 情境比較 |
 | **動態槓桿配置** | 10 個年齡區間（20-25 到 66+）各自設定曝險倍數                 |
 | **自動建議槓桿** | 根據人力資本 / 淨資產比例，依 Ayres & Nalebuff 理論計算建議值 |
 | **通膨調整提領** | 退休後首年提領金額逐年依通膨率遞增，計算資金存活率            |
-| **即時視覺化**   | Chart.js 繪製資產生命週期預測曲線，標記目標達成點與退休時點   |
+| **即時重算**     | 修改任一欄位後自動重新模擬；固定亂數種子，相同參數得到相同結果 |
+| **扇形分佈圖**   | SVG 繪製 P10–P90 / P25–P75 色帶，可切換名目／實質、線性／對數 |
+| **資金耗盡分析** | 失敗路徑依耗盡年齡分組，顯示風險集中的年齡區間                |
 
 ## 技術棧
 
-- **前端**: Vanilla HTML5 + CSS3（Neumorphism / Soft UI 設計風格）
+- **前端**: Vanilla HTML5 + CSS3，無外部 JS 依賴
 - **邏輯**: Pure JavaScript (ES6+)
-- **圖表**: [Chart.js 4.x](https://www.chartjs.org/)
-- **圖示**: [Lucide Icons](https://lucide.dev/)
-- **字體**: [Plus Jakarta Sans](https://fonts.google.com/specimen/Plus+Jakarta+Sans) + [DM Sans](https://fonts.google.com/specimen/DM+Sans)
+- **圖表**: 原生 SVG 繪製
+- **字體**: [Noto Sans TC](https://fonts.google.com/noto/specimen/Noto+Sans+TC)（內文）+ [IBM Plex Mono](https://fonts.google.com/specimen/IBM+Plex+Mono)（數字）
 
 ## 快速開始
 
@@ -40,18 +41,19 @@ npx -y serve .
 1. **基本現況** — 輸入當前年齡、淨資產（萬元）、每月投入金額（元）
 2. **市場預期** — 設定年化報酬率、波動率、通膨率
 3. **退休目標** — 定義退休年齡、目標資產、首年提領金額
-4. **槓桿配置** — 點擊 ⚡ 自動依人力資本計算，或手動調整各區間
-5. **執行模擬** — 點擊按鈕即時生成 KPI、曲線圖與情境分析
+4. **槓桿配置** — 點擊「自動建議」依人力資本計算，或手動調整各區間
+5. **檢視結果** — 結果隨輸入自動更新；「換一組市場路徑」會更換亂數種子重新抽樣
 
 ## 設計風格
 
-採用 **Neumorphism (Soft UI)** 設計系統：
+採用 **研究報告** 風格，以排版與資訊層級取代裝飾：
 
-- 單色 Cool Grey 表面 (`#E0E5EC`)，以雙向 RGBA 陰影塑造深度
-- Extruded（凸起）卡片 + Inset（內嵌）輸入框，無邊框線
-- 32px 容器圓角、16px 元件圓角
-- Accent `#6C63FF` (Soft Violet) 用於 CTA 與 Focus 狀態
-- 300ms ease-out 微互動動畫
+- 以 1px 細線分區，8px 圓角，不使用陰影堆疊
+- 單一主色 `#1D4E89` 用於資料與互動；語意色（穩健／邊際／高風險）獨立於主色
+- 所有文字與背景對比符合 WCAG AA（4.5:1）
+- 數字一律使用等寬字體與 `tabular-nums`，欄位對齊
+- 支援深色模式（`prefers-color-scheme`）
+- 結果優先的資訊層級：一句話結論 → 分佈圖 → 情境表 → 耗盡年齡；行動版先顯示結果再顯示參數
 
 ## 理論基礎
 
@@ -59,14 +61,14 @@ npx -y serve .
 | ------------------------------------------- | --------------------------------------------------------------- |
 | **Life-Cycle Investing** (Ayres & Nalebuff) | 年輕時透過槓桿增加股市曝險，將投資風險分散至整個生命週期        |
 | **4% Rule** (Trinity Study)                 | 退休後每年提領總資產的 4%（隨通膨調整），高機率維持 30 年不耗盡 |
-| **Leveraged ETFs in LCI**                   | 探討槓桿型 ETF 作為生命週期投資法中增加曝險的可行工具           |
+| **Daily Leverage & LETFs** (Balter et al.)  | 探討槓桿型 ETF 作為生命週期投資法中增加曝險的可行工具           |
 | **Beyond the Status Quo**                   | 100% 多元化股票配置可極大化退休財富並降低資金耗盡風險           |
 
 ## 專案結構
 
 ```
 ├── index.html      # 主頁面結構
-├── styles.css      # Neumorphism 設計系統 & 響應式佈局
+├── styles.css      # 設計 tokens、淺色／深色主題 & 響應式佈局
 ├── simulator.js    # 模擬邏輯、圖表渲染、UI 互動
 ├── .gitignore
 └── README.md
