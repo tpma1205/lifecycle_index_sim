@@ -8,461 +8,277 @@
       content="指數投資配合生命週期槓桿策略的蒙地卡羅退休模擬器，評估退休提領成功率與資產預測。"
     />
     <title>退休策略模擬器 | Life-Cycle Simulator</title>
-    <!-- Google Fonts: Plus Jakarta Sans + DM Sans -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=DM+Sans:wght@400;500;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Noto+Sans+TC:wght@400;500;700&display=swap"
       rel="stylesheet"
     />
     <link rel="stylesheet" href="styles.css" />
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
   </head>
   <body>
     <div class="dashboard-wrapper">
       <!-- 左側輸入面板 -->
-      <aside class="sidebar" id="sidebar">
+      <aside class="sidebar" id="sidebar" aria-label="模擬參數">
         <header class="brand-header">
-          <div class="logo-title">
-            <div class="logo-circle">
-              <i data-lucide="line-chart"></i>
-            </div>
-            <h1>退休策略模擬器</h1>
-          </div>
+          <h1>退休策略模擬器</h1>
+          <p class="section-desc">
+            以生命週期動態槓桿與 1,000 條蒙地卡羅路徑，評估退休提領的資金存活率。修改任何欄位，結果會自動更新。
+          </p>
         </header>
 
-        <div class="sidebar-divider"></div>
-
-        <div class="scrollable-content">
-          <div class="panel-section">
-            <p class="section-desc">
-              透過生命週期動態槓桿與蒙地卡羅運算，評估您的退休提領成功率。
-            </p>
-          </div>
-
+        <form class="scrollable-content" id="paramsForm" novalidate>
           <!-- 基本資料 -->
-          <div class="control-group">
-            <h2 class="group-title"><i data-lucide="user"></i> 基本現況</h2>
+          <fieldset class="control-group">
+            <legend class="group-title">基本現況</legend>
             <div class="input-row">
               <label for="currentAge">當前年齡</label>
               <div class="input-wrapper">
-                <input
-                  type="number"
-                  id="currentAge"
-                  value="30"
-                  min="20"
-                  max="100"
-                  oninput="updateLeverageInputsState()"
-                />
+                <input type="number" id="currentAge" value="30" min="20" max="99" inputmode="numeric" />
+                <span class="suffix">歲</span>
               </div>
             </div>
             <div class="input-row">
-              <label for="currentNW">當前淨資產 (萬元)</label>
+              <label for="currentNW">當前淨資產</label>
               <div class="input-wrapper">
-                <span class="prefix">$</span>
-                <input type="number" id="currentNW" value="100" min="0" />
+                <input type="number" id="currentNW" value="100" min="0" inputmode="decimal" />
+                <span class="suffix">萬</span>
               </div>
             </div>
             <div class="input-row">
-              <label for="monthlyInv">每月投入 (元)</label>
+              <label for="monthlyInv">每月投入</label>
               <div class="input-wrapper">
-                <span class="prefix">$</span>
-                <input type="number" id="monthlyInv" value="10000" min="0" />
+                <input type="number" id="monthlyInv" value="10000" min="0" step="1000" inputmode="numeric" />
+                <span class="suffix">元</span>
               </div>
             </div>
-          </div>
+          </fieldset>
 
           <!-- 市場設定 -->
-          <div class="control-group">
-            <div class="group-title-wrapper">
-              <h2 class="group-title"><i data-lucide="globe"></i> 市場預期</h2>
-            </div>
-            <div class="input-row tooltip-trigger">
+          <fieldset class="control-group">
+            <legend class="group-title">市場預期</legend>
+            <div class="input-row">
               <label for="annualReturn">年化報酬率</label>
               <div class="input-wrapper">
-                <span class="prefix">%</span>
-                <input
-                  type="number"
-                  id="annualReturn"
-                  value="8"
-                  min="0"
-                  max="20"
-                  step="0.5"
-                />
+                <input type="number" id="annualReturn" value="8" min="0" max="20" step="0.5" inputmode="decimal" aria-describedby="hintReturn" />
+                <span class="suffix">%</span>
               </div>
-              <div class="tooltip-box">台股或標普500長期幾何報酬約 7%~10%</div>
+              <p class="hint" id="hintReturn">台股或標普 500 長期幾何報酬約 7%–10%</p>
             </div>
-            <div class="input-row tooltip-trigger">
+            <div class="input-row">
               <label for="annualVolatility">年化波動率</label>
               <div class="input-wrapper">
-                <span class="prefix">%</span>
-                <input
-                  type="number"
-                  id="annualVolatility"
-                  value="15"
-                  min="0"
-                  max="50"
-                  step="0.5"
-                />
+                <input type="number" id="annualVolatility" value="15" min="0" max="50" step="0.5" inputmode="decimal" aria-describedby="hintVol" />
+                <span class="suffix">%</span>
               </div>
-              <div class="tooltip-box">股市長期波動率通常設定為 15%~20%</div>
+              <p class="hint" id="hintVol">股市長期波動率通常為 15%–20%</p>
             </div>
-            <div class="input-row tooltip-trigger">
+            <div class="input-row">
               <label for="annualInflation">平均通膨率</label>
               <div class="input-wrapper">
-                <span class="prefix">%</span>
-                <input
-                  type="number"
-                  id="annualInflation"
-                  value="2"
-                  min="0"
-                  max="10"
-                  step="0.5"
-                />
+                <input type="number" id="annualInflation" value="2" min="0" max="10" step="0.5" inputmode="decimal" />
+                <span class="suffix">%</span>
               </div>
-              <div class="tooltip-box">平均 CPI 成長率，預設為 2%</div>
             </div>
-          </div>
+          </fieldset>
 
           <!-- 退休規劃 -->
-          <div class="control-group">
-            <h2 class="group-title"><i data-lucide="palmtree"></i> 退休目標</h2>
+          <fieldset class="control-group">
+            <legend class="group-title">退休目標</legend>
             <div class="input-row">
               <label for="retireAge">退休年齡</label>
               <div class="input-wrapper">
-                <input
-                  type="number"
-                  id="retireAge"
-                  value="65"
-                  min="0"
-                  max="100"
-                />
+                <input type="number" id="retireAge" value="65" min="21" max="100" inputmode="numeric" />
+                <span class="suffix">歲</span>
               </div>
             </div>
             <div class="input-row">
-              <label for="targetNW">目標淨資產 (萬元)</label>
+              <label for="targetNW">目標淨資產</label>
               <div class="input-wrapper">
-                <span class="prefix">$</span>
-                <input type="number" id="targetNW" value="1000" min="0" />
+                <input type="number" id="targetNW" value="1000" min="0" inputmode="decimal" />
+                <span class="suffix">萬</span>
               </div>
             </div>
-            <div class="input-row tooltip-trigger">
-              <label for="withdrawAmount">首年提領 (萬元)</label>
+            <div class="input-row">
+              <label for="withdrawAmount">首年提領</label>
               <div class="input-wrapper">
-                <span class="prefix">$</span>
-                <input type="number" id="withdrawAmount" value="100" min="0" />
+                <input type="number" id="withdrawAmount" value="100" min="0" inputmode="decimal" aria-describedby="hintWithdraw" />
+                <span class="suffix">萬</span>
               </div>
-              <div class="tooltip-box">後續每年提領金額隨通膨增加。</div>
+              <p class="hint" id="hintWithdraw">之後每年的提領金額隨通膨增加</p>
             </div>
-          </div>
+          </fieldset>
 
           <!-- 槓桿倍數 -->
-          <div class="control-group leverage-group">
+          <fieldset class="control-group" aria-labelledby="levTitle">
             <div class="title-with-actions">
-              <h2 class="group-title">
-                <i data-lucide="sliders"></i> 階段槓桿配置
-              </h2>
+              <h2 class="group-title" id="levTitle">階段槓桿配置</h2>
               <div class="leverage-actions">
-                <button
-                  class="icon-btn"
-                  onclick="autoSetLeverage()"
-                  title="自動建議配置"
-                  aria-label="自動建議配置"
-                >
-                  <i data-lucide="zap"></i>
-                </button>
-                <button
-                  class="icon-btn"
-                  onclick="resetLeverage()"
-                  title="重置為 1.0X"
-                  aria-label="重置為 1.0X"
-                >
-                  <i data-lucide="rotate-ccw"></i>
-                </button>
+                <button type="button" class="text-btn" id="autoLevBtn">自動建議</button>
+                <button type="button" class="text-btn" id="resetLevBtn">全部 1.0x</button>
               </div>
             </div>
             <div class="leverage-grid">
-              <div class="lev-item">
-                <label>20-25</label
-                ><input
-                  type="number"
-                  id="lev2025"
-                  value="1"
-                  min="0"
-                  max="5"
-                  step="0.01"
-                />
-              </div>
-              <div class="lev-item">
-                <label>26-30</label
-                ><input
-                  type="number"
-                  id="lev2630"
-                  value="1"
-                  min="0"
-                  max="5"
-                  step="0.01"
-                />
-              </div>
-              <div class="lev-item">
-                <label>31-35</label
-                ><input
-                  type="number"
-                  id="lev3135"
-                  value="1"
-                  min="0"
-                  max="5"
-                  step="0.01"
-                />
-              </div>
-              <div class="lev-item">
-                <label>36-40</label
-                ><input
-                  type="number"
-                  id="lev3640"
-                  value="1"
-                  min="0"
-                  max="5"
-                  step="0.01"
-                />
-              </div>
-              <div class="lev-item">
-                <label>41-45</label
-                ><input
-                  type="number"
-                  id="lev4145"
-                  value="1"
-                  min="0"
-                  max="5"
-                  step="0.01"
-                />
-              </div>
-              <div class="lev-item">
-                <label>46-50</label
-                ><input
-                  type="number"
-                  id="lev4650"
-                  value="1"
-                  min="0"
-                  max="5"
-                  step="0.01"
-                />
-              </div>
-              <div class="lev-item">
-                <label>51-55</label
-                ><input
-                  type="number"
-                  id="lev5155"
-                  value="1"
-                  min="0"
-                  max="5"
-                  step="0.01"
-                />
-              </div>
-              <div class="lev-item">
-                <label>56-60</label
-                ><input
-                  type="number"
-                  id="lev5660"
-                  value="1"
-                  min="0"
-                  max="5"
-                  step="0.01"
-                />
-              </div>
-              <div class="lev-item">
-                <label>61-65</label
-                ><input
-                  type="number"
-                  id="lev6165"
-                  value="1"
-                  min="0"
-                  max="5"
-                  step="0.01"
-                />
-              </div>
-              <div class="lev-item">
-                <label>66+</label
-                ><input
-                  type="number"
-                  id="lev66plus"
-                  value="1"
-                  min="0"
-                  max="5"
-                  step="0.01"
-                />
-              </div>
+              <div class="lev-item"><label for="lev2025">20–25</label><input type="number" id="lev2025" value="1" min="0" max="5" step="0.01" inputmode="decimal" /><span class="suffix">x</span></div>
+              <div class="lev-item"><label for="lev2630">26–30</label><input type="number" id="lev2630" value="1" min="0" max="5" step="0.01" inputmode="decimal" /><span class="suffix">x</span></div>
+              <div class="lev-item"><label for="lev3135">31–35</label><input type="number" id="lev3135" value="1" min="0" max="5" step="0.01" inputmode="decimal" /><span class="suffix">x</span></div>
+              <div class="lev-item"><label for="lev3640">36–40</label><input type="number" id="lev3640" value="1" min="0" max="5" step="0.01" inputmode="decimal" /><span class="suffix">x</span></div>
+              <div class="lev-item"><label for="lev4145">41–45</label><input type="number" id="lev4145" value="1" min="0" max="5" step="0.01" inputmode="decimal" /><span class="suffix">x</span></div>
+              <div class="lev-item"><label for="lev4650">46–50</label><input type="number" id="lev4650" value="1" min="0" max="5" step="0.01" inputmode="decimal" /><span class="suffix">x</span></div>
+              <div class="lev-item"><label for="lev5155">51–55</label><input type="number" id="lev5155" value="1" min="0" max="5" step="0.01" inputmode="decimal" /><span class="suffix">x</span></div>
+              <div class="lev-item"><label for="lev5660">56–60</label><input type="number" id="lev5660" value="1" min="0" max="5" step="0.01" inputmode="decimal" /><span class="suffix">x</span></div>
+              <div class="lev-item"><label for="lev6165">61–65</label><input type="number" id="lev6165" value="1" min="0" max="5" step="0.01" inputmode="decimal" /><span class="suffix">x</span></div>
+              <div class="lev-item"><label for="lev66plus">66+</label><input type="number" id="lev66plus" value="1" min="0" max="5" step="0.01" inputmode="decimal" /><span class="suffix">x</span></div>
             </div>
-          </div>
-        </div>
-        <!-- end scrollable-content -->
+            <p class="hint">「自動建議」依人力資本與淨資產的比例計算，上限 2.0x。已經過去的年齡區間不列入計算。</p>
+          </fieldset>
+
+          <!-- 進階 -->
+          <fieldset class="control-group">
+            <legend class="group-title">進階</legend>
+            <div class="input-row">
+              <label for="seed">亂數種子</label>
+              <div class="input-wrapper">
+                <input type="number" id="seed" value="42" min="1" step="1" inputmode="numeric" aria-describedby="hintSeed" />
+              </div>
+              <p class="hint" id="hintSeed">相同參數與種子會得到相同結果，方便比較不同設定的差異</p>
+            </div>
+          </fieldset>
+        </form>
 
         <div class="sidebar-footer">
-          <button class="btn-primary" onclick="runSimulation()">
-            <i data-lucide="play"></i> 執行模擬運算
-          </button>
+          <p class="form-error" id="formError" role="alert"></p>
+          <button type="button" class="btn-secondary" id="resampleBtn">換一組市場路徑</button>
         </div>
       </aside>
 
       <!-- 右側主內容 -->
-      <main class="main-content" id="resultsSection" style="display: none">
+      <main class="main-content" id="resultsSection">
         <header class="main-header">
-          <h2>模擬運算儀表板</h2>
-          <span class="badge">1,000 Paths Monte Carlo</span>
+          <h2>模擬結果</h2>
+          <p class="assumptions" id="assumptions"></p>
+          <a class="jump-link" href="#paramsForm">調整參數</a>
         </header>
 
-        <!-- 頂部重點數據 -->
-        <div class="kpi-grid">
-          <div class="kpi-card">
-            <div class="kpi-icon"><i data-lucide="wallet"></i></div>
-            <div class="kpi-details">
-              <span class="kpi-label">總投入本金 (萬元)</span>
-              <strong class="kpi-value" id="totalInvestmentResult">--</strong>
+        <!-- 核心答案 -->
+        <section class="panel answer" aria-labelledby="verdictHeadline">
+          <div class="verdict">
+            <span class="pill" id="verdictPill"></span>
+            <h3 class="headline" id="verdictHeadline"></h3>
+            <p class="sub" id="verdictSub"></p>
+          </div>
+          <div class="stats">
+            <div class="stat">
+              <span class="k">目標達成機率</span>
+              <span class="v" id="targetRateResult">--</span>
+              <span class="note muted" id="targetRateNote"></span>
+            </div>
+            <div class="stat">
+              <span class="k">P50 退休時資產</span>
+              <span class="v" id="retireValueResult">--</span>
+              <span class="note muted" id="retireValueNote"></span>
+            </div>
+            <div class="stat">
+              <span class="k">首年提領率</span>
+              <span class="v" id="withdrawRateResult">--</span>
+              <span class="note" id="withdrawRateNote"></span>
+            </div>
+            <div class="stat">
+              <span class="k">總投入本金</span>
+              <span class="v" id="totalInvestmentResult">--</span>
+              <span class="note muted" id="totalInvestmentNote"></span>
             </div>
           </div>
-          <div class="kpi-card highlight">
-            <div class="kpi-icon"><i data-lucide="target"></i></div>
-            <div class="kpi-details">
-              <span class="kpi-label">目標達成機率</span>
-              <strong class="kpi-value text-blue" id="targetRateResult"
-                >--</strong
-              >
-            </div>
-          </div>
-          <div class="kpi-card highlight">
-            <div class="kpi-icon"><i data-lucide="shield-check"></i></div>
-            <div class="kpi-details">
-              <span class="kpi-label">資金未耗盡存活率</span>
-              <strong class="kpi-value text-green" id="successRateResult"
-                >--</strong
-              >
-            </div>
-          </div>
-        </div>
+        </section>
 
-        <!-- 核心圖表區域 -->
-        <div class="chart-panel">
-          <div class="panel-header">
-            <h3>資產生命週期預測模型</h3>
+        <!-- 扇形圖 -->
+        <section class="panel" aria-labelledby="chartTitle">
+          <div class="panel-head">
+            <h3 id="chartTitle">資產分佈預測</h3>
+            <div class="toggles">
+              <div class="seg" role="group" aria-label="金額口徑">
+                <button type="button" id="toggleNominal" aria-pressed="true">名目</button>
+                <button type="button" id="toggleReal" aria-pressed="false">實質（扣通膨）</button>
+              </div>
+              <div class="seg" role="group" aria-label="縱軸刻度">
+                <button type="button" id="toggleLinear" aria-pressed="false">線性</button>
+                <button type="button" id="toggleLog" aria-pressed="true">對數</button>
+              </div>
+            </div>
           </div>
-          <div class="chart-wrapper">
-            <canvas id="myChart"></canvas>
+          <div class="legend">
+            <span><i class="sw outer"></i>P10–P90</span>
+            <span><i class="sw inner"></i>P25–P75</span>
+            <span><i class="sw line"></i>P50 中位數</span>
+            <span><i class="sw tgt"></i>目標淨資產</span>
+            <span><i class="sw ret"></i>退休年齡</span>
           </div>
-        </div>
+          <div class="chart" id="chart">
+            <svg id="fanChart" role="img" aria-label="各年齡資產分佈的扇形圖"></svg>
+            <div class="chart-tip" id="chartTip" hidden></div>
+          </div>
+          <p class="caption" id="chartCaption"></p>
+        </section>
 
-        <!-- 三種情境詳細數據 -->
-        <div class="scenario-grid">
-          <div class="scenario-card p75">
-            <div class="card-header">
-              <div class="indicator"></div>
-              <h3>樂觀情境 (P75)</h3>
+        <div class="lower">
+          <!-- 情境比較 -->
+          <section class="panel" aria-labelledby="scenarioTitle">
+            <div class="panel-head"><h3 id="scenarioTitle">情境比較</h3></div>
+            <div class="table-wrap">
+              <table class="scenario-table">
+                <thead>
+                  <tr>
+                    <th scope="col">指標</th>
+                    <th scope="col"><span class="q">P25</span>悲觀</th>
+                    <th scope="col" class="col-mid"><span class="q">P50</span>中位數</th>
+                    <th scope="col"><span class="q">P75</span>樂觀</th>
+                  </tr>
+                </thead>
+                <tbody id="scenarioBody"></tbody>
+              </table>
             </div>
-            <div class="card-body">
-              <div class="data-row">
-                <span>目標達成點</span><strong id="targetResultP75">--</strong>
-              </div>
-              <div class="data-row">
-                <span>退休時資產</span><strong id="retireResultP75">--</strong>
-              </div>
-              <div class="data-row">
-                <span>終局狀態</span><strong id="deathResultP75">--</strong>
-              </div>
-            </div>
-          </div>
+            <p class="caption">P25 表示每一年都有 25% 的路徑資產低於此值。金額為名目值。</p>
+          </section>
 
-          <div class="scenario-card p50">
-            <div class="card-header">
-              <div class="indicator"></div>
-              <h3>中位數平均 (P50)</h3>
-            </div>
-            <div class="card-body">
-              <div class="data-row">
-                <span>目標達成點</span><strong id="targetResultP50">--</strong>
-              </div>
-              <div class="data-row">
-                <span>退休時資產</span><strong id="retireResultP50">--</strong>
-              </div>
-              <div class="data-row">
-                <span>終局狀態</span><strong id="deathResultP50">--</strong>
-              </div>
-            </div>
-          </div>
-
-          <div class="scenario-card p25">
-            <div class="card-header">
-              <div class="indicator"></div>
-              <h3>悲觀情境 (P25)</h3>
-            </div>
-            <div class="card-body">
-              <div class="data-row">
-                <span>目標達成點</span><strong id="targetResultP25">--</strong>
-              </div>
-              <div class="data-row">
-                <span>退休時資產</span><strong id="retireResultP25">--</strong>
-              </div>
-              <div class="data-row">
-                <span>終局狀態</span><strong id="deathResultP25">--</strong>
-              </div>
-            </div>
-          </div>
+          <!-- 資金耗盡年齡 -->
+          <section class="panel" aria-labelledby="depletionTitle">
+            <div class="panel-head"><h3 id="depletionTitle">資金耗盡年齡</h3></div>
+            <p class="caption caption-top" id="depletionCaption"></p>
+            <div id="depletionChart"></div>
+          </section>
         </div>
 
         <!-- 核心概念與參考文獻 -->
-        <div class="references-panel" id="referencesPanel">
-          <div class="panel-header">
-            <h3><i data-lucide="book-open"></i> 核心概念與參考文獻</h3>
-          </div>
-          <div class="references-list">
-            <div class="reference-item">
-              <h4>
-                Life-Cycle Investing and Leverage: Buying Stock on Margin Can
-                Reduce Retirement Risk
-              </h4>
-              <p>
-                投資風險應分散至整個生命週期，年輕時應透過使用槓桿增加股市曝險，藉此在相同風險下極大化退休財富。
-              </p>
-            </div>
-            <div class="reference-item">
-              <h4>
-                Daily leverage and long-term investing using leveraged exchange
-                traded funds
-              </h4>
-              <p>生命週期投資法中，槓桿型ETF是否可作為增加曝險的合理工具。</p>
-            </div>
-            <div class="reference-item">
-              <h4>
-                Retirement Savings: Choosing a Sustainable Withdrawal Rate
-              </h4>
-              <p>
-                退休後每年提領的比例為總資產的4%(隨通膨調整)，高機率可於退休後30年內保持提領而不耗盡資產。
-              </p>
-            </div>
-            <div class="reference-item">
-              <h4>
-                Beyond the status quo: A critical assessment of lifecycle
-                investment advice
-              </h4>
-              <p>
-                100%的多元化股票配置可極大化退休財富累積與降低資金耗盡風險。
-              </p>
-            </div>
-          </div>
-        </div>
+        <section class="panel">
+          <details class="refs">
+            <summary>核心概念與參考文獻</summary>
+            <ul class="ref-list">
+              <li>
+                <span class="meta">Ayres &amp; Nalebuff · 2008</span>
+                <span class="title">Life-Cycle Investing and Leverage: Buying Stock on Margin Can Reduce Retirement Risk</span>
+                <p>投資風險應分散至整個生命週期。年輕時透過槓桿提高股市曝險，可在相同風險下提高退休財富。</p>
+              </li>
+              <li>
+                <span class="meta">Balter, García González &amp; Schweizer · 2025（Tilburg University / Netspar 工作論文）</span>
+                <span class="title">Daily Leverage and Long-Term Investing using Leveraged Exchange Traded Funds</span>
+                <p>探討槓桿型 ETF 是否適合作為生命週期投資法中提高曝險的工具。</p>
+              </li>
+              <li>
+                <span class="meta">Cooley, Hubbard &amp; Walz · 1998</span>
+                <span class="title">Retirement Savings: Choosing a Sustainable Withdrawal Rate</span>
+                <p>退休後每年提領總資產 4%（隨通膨調整），有高機率在 30 年內不耗盡資產。</p>
+              </li>
+              <li>
+                <span class="meta">Anarkulova, Cederburg &amp; O'Doherty · 2023</span>
+                <span class="title">Beyond the Status Quo: A Critical Assessment of Lifecycle Investment Advice</span>
+                <p>100% 多元化股票配置可提高退休財富累積，並降低資金耗盡風險。</p>
+              </li>
+            </ul>
+          </details>
+        </section>
       </main>
-
-      <div class="empty-state" id="emptyState">
-        <div class="empty-icon"><i data-lucide="bar-chart-2"></i></div>
-        <h2>準備就緒</h2>
-        <p>
-          請於左側檢查您的基本資料與市場設定，點擊「執行模擬運算」以生成退休財富預測模型。
-        </p>
-      </div>
     </div>
 
     <script src="simulator.js"></script>
-    <script>
-      lucide.createIcons();
-    </script>
   </body>
 </html>
