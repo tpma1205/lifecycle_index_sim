@@ -317,7 +317,7 @@ function successLevel(rate) {
 // ============================================
 // 結果呈現
 // ============================================
-const chartState = { real: false, log: true, results: null };
+const chartState = { log: true, results: null };
 
 function displayResults(results) {
   renderSummary(results);
@@ -509,10 +509,7 @@ function drawChart() {
   tip.hidden = true;
 
   const { params: p, ages } = results;
-  const deflate = (v, i) =>
-    chartState.real ? v / Math.pow(1 + p.annualInflation, i) : v;
-  const series = {};
-  QUANTILES.forEach((q) => (series[q] = results.quantilePaths[q].map(deflate)));
+  const series = results.quantilePaths;
 
   const x = (age) =>
     m.l + ((age - ages[0]) / (ages[ages.length - 1] - ages[0])) * iw;
@@ -637,11 +634,34 @@ function drawChart() {
   hitArea.addEventListener("pointerdown", onMove);
   hitArea.addEventListener("pointerleave", onLeave);
 
-  const infl = (p.annualInflation * 100).toFixed(1);
-  const logNote = chartState.log ? "對數刻度下，低於 10 萬的值貼齊底部。" : "";
-  $("chartCaption").textContent = chartState.real
-    ? `實質金額：以 ${infl}% 通膨折回今日購買力。目標線維持名目值。${logNote}`
-    : `名目金額：未扣除通膨。${logNote || "線性刻度下，尾端的高報酬路徑會壓縮前期的差異。"}`;
+  $("chartCaption").textContent =
+    "金額皆為當年度金額，未扣除通膨。" +
+    (chartState.log
+      ? "對數刻度下，低於 10 萬的值貼齊底部。"
+      : "線性刻度下，尾端的高報酬路徑會壓縮前期的差異。");
+}
+
+// ============================================
+// 今日購買力提示
+// ============================================
+// 首年提領與目標淨資產都以退休當年的金額填寫，這裡換算成今天的購買力
+function updateTodayValueHints() {
+  const p = readParams();
+  const years = p.retireAge - p.currentAge;
+  const valid =
+    [p.currentAge, p.retireAge, p.annualInflation].every((v) => !isNaN(v)) &&
+    years > 0 &&
+    p.annualInflation >= 0;
+  const toToday = (v) => v / Math.pow(1 + p.annualInflation, years);
+
+  $("withdrawToday").textContent =
+    valid && !isNaN(p.withdrawAmount)
+      ? `以 ${p.retireAge} 歲退休計，約等於今天的 ${formatMoney(toToday(p.withdrawAmount))}購買力。`
+      : "";
+  $("hintTarget").textContent =
+    valid && !isNaN(p.targetNW)
+      ? `以 ${p.retireAge} 歲計，約等於今天的 ${formatMoney(toToday(p.targetNW))}購買力。`
+      : "";
 }
 
 // ============================================
@@ -719,6 +739,7 @@ function bindSegmented(onId, offId, key, value) {
 function init() {
   $("paramsForm").addEventListener("input", (ev) => {
     if (ev.target.id === "currentAge") updateLeverageInputsState();
+    updateTodayValueHints();
     scheduleSimulation();
   });
   $("paramsForm").addEventListener("submit", (ev) => ev.preventDefault());
@@ -729,8 +750,6 @@ function init() {
     runSimulation();
   });
 
-  bindSegmented("toggleNominal", "toggleReal", "real", false);
-  bindSegmented("toggleReal", "toggleNominal", "real", true);
   bindSegmented("toggleLinear", "toggleLog", "log", false);
   bindSegmented("toggleLog", "toggleLinear", "log", true);
 
@@ -748,6 +767,7 @@ function init() {
   }
 
   updateLeverageInputsState();
+  updateTodayValueHints();
   runSimulation();
 }
 
