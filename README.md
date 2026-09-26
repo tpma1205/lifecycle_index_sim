@@ -36,6 +36,10 @@ npx -y serve .
 
 然後在瀏覽器開啟 `http://localhost:3000`。
 
+### 更新靜態資源
+
+GitHub Pages 會讓瀏覽器快取檔案約 10 分鐘。修改 `styles.css` 或 `simulator.js` 後，請同時遞增 `index.html` 中引用的版本號（例如 `styles.css?v=2` → `?v=3`），避免使用者拿到新 HTML 搭配舊的 CSS／JS。
+
 ## 使用方式
 
 1. **基本現況** — 輸入當前年齡、淨資產（萬元）、每月投入金額（元）
