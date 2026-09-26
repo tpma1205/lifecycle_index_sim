@@ -14,7 +14,7 @@
       href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Noto+Sans+TC:wght@400;500;700&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="styles.css?v=2" />
+    <link rel="stylesheet" href="styles.css?v=3" />
   </head>
   <body>
     <div class="dashboard-wrapper">
@@ -95,9 +95,10 @@
             <div class="input-row">
               <label for="targetNW">目標淨資產</label>
               <div class="input-wrapper">
-                <input type="number" id="targetNW" value="1000" min="0" inputmode="decimal" />
+                <input type="number" id="targetNW" value="1000" min="0" inputmode="decimal" aria-describedby="hintTarget" />
                 <span class="suffix">萬</span>
               </div>
+              <p class="hint" id="hintTarget"></p>
             </div>
             <div class="input-row">
               <label for="withdrawAmount">首年提領</label>
@@ -105,7 +106,7 @@
                 <input type="number" id="withdrawAmount" value="100" min="0" inputmode="decimal" aria-describedby="hintWithdraw" />
                 <span class="suffix">萬</span>
               </div>
-              <p class="hint" id="hintWithdraw">之後每年的提領金額隨通膨增加</p>
+              <p class="hint" id="hintWithdraw">退休當年的提領金額，之後每年隨通膨增加。<span id="withdrawToday"></span></p>
             </div>
           </fieldset>
 
@@ -196,10 +197,6 @@
           <div class="panel-head">
             <h3 id="chartTitle">資產分佈預測</h3>
             <div class="toggles">
-              <div class="seg" role="group" aria-label="金額口徑">
-                <button type="button" id="toggleNominal" aria-pressed="true">名目</button>
-                <button type="button" id="toggleReal" aria-pressed="false">實質（扣通膨）</button>
-              </div>
               <div class="seg" role="group" aria-label="縱軸刻度">
                 <button type="button" id="toggleLinear" aria-pressed="false">線性</button>
                 <button type="button" id="toggleLog" aria-pressed="true">對數</button>
@@ -237,7 +234,7 @@
                 <tbody id="scenarioBody"></tbody>
               </table>
             </div>
-            <p class="caption">P25 表示每一年都有 25% 的路徑資產低於此值。金額為名目值。</p>
+            <p class="caption">P25 表示每一年都有 25% 的路徑資產低於此值。金額皆為當年度金額，未扣除通膨。</p>
           </section>
 
           <!-- 資金耗盡年齡 -->
@@ -279,6 +276,6 @@
       </main>
     </div>
 
-    <script src="simulator.js?v=2"></script>
+    <script src="simulator.js?v=3"></script>
   </body>
 </html>
